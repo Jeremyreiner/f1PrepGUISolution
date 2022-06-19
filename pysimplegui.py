@@ -15,7 +15,7 @@ clmnSize=(300,200)
 
 col1 = [
         [sg.Text('Serial Port')],[sg.Combo(selection, size=((inputWidth + buttonWidth + 2), 5), enable_events=True, key='-SERIAL_PORT-', pad=inputPadding)],
-        [sg.Text('Host_Ip')],[sg.Input('', size=(inputWidth,5), key='-HOST_IP-')], 
+        [sg.Text('Host_Ip')],[sg.Input('', size=(inputWidth,5), key='-HOST_IP_INPUT-')], 
         [sg.Button('Network Settings', pad=(2, 35), key='-NETWORK_SETTINGS-')]  
     ]
 col2 = [
@@ -99,26 +99,16 @@ while True:
     event, values = window.read()
     progress_bar.UpdateBar(i + 50)
 
-    # Validate Entry for combobox;
-    if event == "-SERIAL_PORT-":
-        is_valid = ValidateSPComboBox(values)
-        if not is_valid:
-            inValidList.Append("SerialPort")
-            
-
-
-
     # if event == "-IMAGE-":
     if event == "-NETWORK_SETTINGS-":
         continue
-    if event == "-SAVE-":
+    elif event == "-SAVE-":
         continue
-    if event == "OPEN_LOG_FOLDER":
+    elif event == "OPEN_LOG_FOLDER":
         continue
-    if event == "-F1_UNIT_PREP_FINAL_IP-":
-        Continue
-
-    if event == "-CONTINUE-":
+    elif event == "-F1_UNIT_PREP_FINAL_IP-":
+        continue
+    elif event == "-CONTINUE-":
         result = ValidateInput(values)
 window.close()
 
