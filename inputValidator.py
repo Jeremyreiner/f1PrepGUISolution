@@ -1,74 +1,66 @@
 from pathlib import Path
+import ipaddress
 import PySimpleGUI as sg
 import os.path
 
+inValidList = []
+isValid = True
 
-def ValidateInputs(values) -> tuple:
+def ValidateRow1Inputs(values):
     '''Returns tuple (success, extraction_type)'''
-    inValidList = []
-    isValid = True
     for value in values:
         if 'BROWSE' in value.upper():
-            print(value)
+            #print(value)
+            pass
         else:
-            if (value == "-SERIAL_PORT-" or  value == "-HOST_IP_INPUT-"
-                    or value == "-SN-" or value == "-TO_RTS-" or value == "-FROM_RTS-"):
-                response = ValidateInput(value)
-                if not response[0]:
-                    inValidList.append(value)
-                    isValid = False
+            if value == "-HOST_IP_INPUT-" or value == "-SERIAL_PORT-":
+                if value == '-SERIAL_PORT-':
+                    pass
+
+                ValidateInput(value, values)
 
             elif (value == "-IMAGE-" or value == "-EMBEDED_SRC-" or 
                     value == "-FARMSERVER-" or value == "-FARMSERVERF1INSTALLER-" or
                     value == "-DB_FILE-" or value == "-NAND_SRC_PATH-" or value == "-DB_FILE_SRC-"):
-                response = CheckValidFilePath(values, value)
-                if not response[0]:
-                    inValidList.append(value)
-                    isValid = False
+                
+                CheckValidFilePath(values, value)
 
-            elif value == "-SOM_DESIRED_IP-":
-                pass
-            elif value == "-F1_UNIT-":
-                pass
             else:
                 if value == "-IMPORTDBBOOL-":
-                    if values[value] == False:
-                        pass
-                    else:
+                    if values[value]:
                         value = "-IMPORTDB-"
-                        response = CheckValidFilePath(values, value)
-                        if not response[0]:
-                            inValidList.append(value)
-                            isValid = False
+                        CheckValidFilePath(values, value)
 
     ThrowPopUpError(inValidList)
 
 
-
 def ThrowPopUpError(inValidList):
-        if len(inValidList) > 0:
-            mapInputs = {
-                '-IMAGE-': 'Image Path',
-                '-EMBEDED_SRC-': 'Embedded_src_Path',
-                '-FARMSERVER-': 'farmserverfillsrc',
-                '-FARMSERVERF1INSTALLER-': 'farserverf1installersrc',
-                '-DB_FILE-': 'pathtodbfile',
-                "-IMPORTDB-": 'Import Database',
-                "-DB_FILE_SRC-": "Db File Source",
-                '-NAND_SRC_PATH-': 'nand_src_path',
-                '-SERIAL_PORT-': 'Serial Port',
-                '-HOST_IP_INPUT-': 'Host_Ip',
-                '-SN-': 'Serial Number',
-                '-TO_RTS-': 'To_RTS_PORT',
-                '-FROM_RTS-': 'FROM_RTS_PORT',
-                '-SOM_DESIRED_IP-': 'SOM_DESIRED_IP',
-                '-F1_UNIT-': 'F1_UNIT_PREP_FINAL_IP_CONFIGS',
-            }
-        invalidMarkups = []
-        for value in inValidList:
-            invalidMarkups.append(mapInputs[value])
-        
-        sg.PopupError(f'Incorrect INPUT file/files for the following Catagories!\n {printError(invalidMarkups)}')
+    invalidMarkups = []
+
+    if len(inValidList) > 0:
+        mapInputs = {
+            '-IMAGE-': 'Image Path',
+            '-EMBEDED_SRC-': 'Embedded_src_Path',
+            '-FARMSERVER-': 'farmserverfillsrc',
+            '-FARMSERVERF1INSTALLER-': 'farserverf1installersrc',
+            '-DB_FILE-': 'pathtodbfile',
+            "-IMPORTDB-": 'Import Database',
+            "-DB_FILE_SRC-": "Db File Source",
+            '-NAND_SRC_PATH-': 'nand_src_path',
+            '-SERIAL_PORT-': 'Serial Port',
+            '-HOST_IP_INPUT-': 'Host_Ip',
+            '-SN-': 'Serial Number',
+            '-TO_RTS-': 'to_rts_port',
+            '-FROM_RTS-': 'from_rts_port',
+            '-SOM_DESIRED_IP-': 'som_desired_ip',
+            '-F1_UNIT-': 'F1_UNIT_PREP_FINAL_IP_CONFIGS',
+        }
+    for value in inValidList:
+        invalidMarkups.append(mapInputs[value])
+    
+    sg.PopupError(f'Incorrect INPUT file / files for the following Catagories!\n {printError(invalidMarkups)}')
+    inValidList.clear()
+    invalidMarkups.clear()
 
 def printError(errors):
     str = ''
@@ -82,35 +74,92 @@ def CheckValidFilePath(values, value):
     if type(path) == bool:
         pass
     elif len(path) == 0 or path == '':
-        return False, value
-    elif not os.path.exists(path):
-        return False, value
+        inValidList.append(value)
+        isValid = False
     elif os.path.isdir(path):
-        ext_type = 'fs'
-        return False, ext_type
+        inValidList.append(value)
+        isValid = False
+
+    elif not os.path.exists(path):
+        inValidList.append(value)
+        isValid = False
     else:
         #is image path
         if (path.lower().endswith('.jpeg') or path.lower().endswith('.png')
             or path.lower().endswith('.png') or path.lower().endswith('.webp') 
             or path.lower().endswith('.svg') or path.lower().endswith('.gz')):
-            return True, path
+            if value != '-IMAGE-':
+                inValidList.append(value)
+                isValid = False
         #is embedded_src_path, nand_src_path
         elif (path.lower().endswith('.gz') or path.lower().endswith('.bin')):
-            return True, path
+            if value != '-EMBEDED_SRC-' or value != '-NAND_SRC_PATH-' :
+                inValidList.append(value)
+                isValid = False
         #is database path
-        elif (path.lower().endswith('.sql') or path.lower().endswith('.json')):
-            return True, path
+        elif (path.lower().endswith('.sql') or path.lower().endswith('.json') or path.lower().endswith('.exe')):
+            if value != '-DB_FILE-' or value != '-DB_FILE_SRC-' or value != '-IMPORTDB-' :
+                inValidList.append(value)
+                isValid = False
         #is farmerserver path
         elif (path.lower().endswith('.jar') or path.lower().endswith('.sh')):
-            return True, path
+            if value != '-FARMSERVERF1INSTALLER-' or value != '-FARMSERVER-':
+                inValidList.append(value)
+                isValid = False
         else:
             ext_type = Path(path).suffix[1:].lower() 
-            return True, ext_type
+            print(f"Found in else: {value}, {ext_type}")
 
 
-def ValidateInput(value):
-    if (len(value) != 0):
-        is_valid = True
-    else:
-        is_valid = False
-    return is_valid, value
+
+def ValidateInput(value, values):
+    v = values[value]
+    if len(v) <= 0 or v == '':
+        inValidList.append(value)
+        isValid = False
+
+def ValidatePortLength(value, values):
+    v = values[value]
+    if len(v) != 4:
+        inValidList.append(value)
+        isValid = False
+
+def validate_ip_address(value, values):
+    add = values[value]
+    try:
+        ip = ipaddress.ip_address(add)
+        print("IP address {} is valid. The object returned is {}".format(add, ip))
+    except:
+        inValidList.append(value)
+        isValid = False
+
+#---------------row two elements for validation-------------------------]
+def ValidateRow2Inputs(values):
+    
+    
+    for value in values:
+        if value == "-SN-":
+            ValidateInput(value, values)
+        elif value == "-TO_RTS-" or value == '-FROM_RTS-':
+            ValidatePortLength(value, values)
+        elif value == "-SOM_DESIRED_IP-":
+            validate_ip_address(value, values)
+        elif value == '-F1_UNIT-':
+            response = values["-DHCPBTN-"]
+            if response == 'Static':
+                values[value] = response
+                #print(value, values[value])
+            else:
+                values[value] = response
+                #print(value, values[value])
+        else:
+            pass
+    ValidateRow1Inputs(values)
+
+
+
+# serial_number= "RG11SNSTFS000475"   #default==empty
+# TO_RTS_PORT = '2560'
+# FROM_RTS_PORT = '2561'
+# som_desired_ip = '10.4.1.55'
+# f1_unit_prep_final_ip_config = False #True DHCP, False static

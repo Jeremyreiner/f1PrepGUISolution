@@ -1,6 +1,6 @@
 import PySimpleGUI as sg
 import os.path
-from inputValidator import * 
+from inputValidator import *
 
 
 selection = ('1', '2', '3', '4', '5', '6')
@@ -9,7 +9,7 @@ width = max(map(len, selection))+1
 inputWidth = 25
 buttonWidth = 5
 inputPadding = ((3, 5))
-clmnSize=(300,200)
+clmnSize=(250,200)
 
 
 col1 = [
@@ -42,10 +42,10 @@ row2Col1 = [
     ]
 row2Col2 = [
         [sg.Text("som_desired_ip")],[sg.Input(size=(inputWidth,1), pad=inputPadding, key='-SOM_DESIRED_IP-')],
-        [sg.Text('f1_unit_prep_final_ip_config')],[sg.Input(size=(inputWidth,1), key='-F1_UNIT-'), sg.Button('DHCP/\nstatic', size=(buttonWidth,2),key='-DHCPBTN-', pad=inputPadding)], 
+        [sg.Text('f1_unit_prep_final_ip_config')],[sg.Input(size=(inputWidth,1), key='-F1_UNIT-')], 
     ]
 row2Col3 = [
-        [sg.Text('')],
+        [sg.Spin(values=('DHCP', 'Static'), initial_value='Static', size=(buttonWidth,2),key='-DHCPBTN-', pad=(0, 85))],
     ]
 row2Col4 = [
         [sg.Text('')],
@@ -93,27 +93,27 @@ i = 0
 
 
 if __name__ == '__main__':
-    is_valid = False
-    inValidList = []
     # Run a while loop for continuios iterations Event Loop
     while True:
         event, values = window.read()
         progress_bar.UpdateBar(i + 50)
+        print(event)
+        if event == "-SERIAL_PORT-":
+            ValidateInput(event, values)
 
-        # if event == "-IMAGE-":
-        if event == "-NETWORK_SETTINGS-":
+        elif event == "-NETWORK_SETTINGS-":
             continue
+        
         elif event == "-SAVE-":
-            result = ValidateInputs(values)
+            ValidateRow1Inputs(values)
+
+        elif event == "-CONTINUE-":
+            ValidateRow2Inputs(values)
+
         elif event == "OPEN_LOG_FOLDER":
             continue
-        elif event == "-DHCP-":
-            continue
-        elif event == "-CONTINUE-":
-            continue
+    
     window.close()
 
 
 
-#-form validation
-#1- press on run check that all inputs are valid inputs
