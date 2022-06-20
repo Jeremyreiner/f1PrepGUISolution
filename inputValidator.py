@@ -150,18 +150,9 @@ def ValidateRow2Inputs(values):
             if v == 'Static':
                 Static = True
             elif v == 'DHCP':
-                dhcp = True
+                DHCP = True
             else:
                 inValidList.append(value)
                 isValid = False
-        else:
-            pass
+
     ValidateRow1Inputs(values)
-
-
-
-# serial_number= "RG11SNSTFS000475"   #default==empty
-# TO_RTS_PORT = '2560'
-# FROM_RTS_PORT = '2561'
-# som_desired_ip = '10.4.1.55'
-# f1_unit_prep_final_ip_config = False #True DHCP, False static
