@@ -93,17 +93,17 @@ def CheckValidFilePath(values, value):
                 isValid = False
         #is embedded_src_path, nand_src_path
         elif (path.lower().endswith('.gz') or path.lower().endswith('.bin')):
-            if value != '-EMBEDED_SRC-' or value != '-NAND_SRC_PATH-' :
+            if value != '-EMBEDED_SRC-' and value != '-NAND_SRC_PATH-' :
                 inValidList.append(value)
                 isValid = False
         #is database path
         elif (path.lower().endswith('.sql') or path.lower().endswith('.json') or path.lower().endswith('.exe')):
-            if value != '-DB_FILE-' or value != '-DB_FILE_SRC-' or value != '-IMPORTDB-' :
+            if value != '-DB_FILE-' and value != '-DB_FILE_SRC-' and value != '-IMPORTDB-' :
                 inValidList.append(value)
                 isValid = False
         #is farmerserver path
         elif (path.lower().endswith('.jar') or path.lower().endswith('.sh')):
-            if value != '-FARMSERVERF1INSTALLER-' or value != '-FARMSERVER-':
+            if value != '-FARMSERVERF1INSTALLER-' and value != '-FARMSERVER-':
                 inValidList.append(value)
                 isValid = False
         else:
@@ -145,13 +145,15 @@ def ValidateRow2Inputs(values):
         elif value == "-SOM_DESIRED_IP-":
             validate_ip_address(value, values)
         elif value == '-F1_UNIT-':
-            response = values["-DHCPBTN-"]
-            if response == 'Static':
-                values[value] = response
-                #print(value, values[value])
+            v = values[value]
+            print(v)
+            if v == 'Static':
+                Static = True
+            elif v == 'DHCP':
+                dhcp = True
             else:
-                values[value] = response
-                #print(value, values[value])
+                inValidList.append(value)
+                isValid = False
         else:
             pass
     ValidateRow1Inputs(values)

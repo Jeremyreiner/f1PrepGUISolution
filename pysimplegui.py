@@ -13,7 +13,7 @@ clmnSize=(250,200)
 
 
 col1 = [
-        [sg.Text('Serial Port')],[sg.Combo(selection, size=((inputWidth + buttonWidth + 2), 5), enable_events=True, key='-SERIAL_PORT-', pad=inputPadding)],
+        [sg.Text('Serial Port')],[sg.Combo(selection, size=((inputWidth + buttonWidth + 2), 5), key='-SERIAL_PORT-', pad=inputPadding)],
         [sg.Text('Host_Ip')],[sg.Input('', size=(inputWidth,5), key='-HOST_IP_INPUT-')], 
         [sg.Button('Network Settings', pad=(2, 35), key='-NETWORK_SETTINGS-')]  
     ]
@@ -42,10 +42,12 @@ row2Col1 = [
     ]
 row2Col2 = [
         [sg.Text("som_desired_ip")],[sg.Input(size=(inputWidth,1), pad=inputPadding, key='-SOM_DESIRED_IP-')],
-        [sg.Text('f1_unit_prep_final_ip_config')],[sg.Input(size=(inputWidth,1), key='-F1_UNIT-')], 
+        [sg.Text('f1_unit_prep_final_ip_config')],[sg.Combo(('DHCP', 'Static'),size=(inputWidth, 1), key='-F1_UNIT-', pad=inputPadding)], 
+        
     ]
 row2Col3 = [
-        [sg.Spin(values=('DHCP', 'Static'), initial_value='Static', size=(buttonWidth,2),key='-DHCPBTN-', pad=(0, 85))],
+        [sg.Text('')],
+        #[sg.Spin(values=('DHCP', 'Static'), initial_value='Static', size=(buttonWidth,2),key='-DHCPBTN-', pad=(0, 85))],
     ]
 row2Col4 = [
         [sg.Text('')],
