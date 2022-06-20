@@ -1,4 +1,3 @@
-from ast import Continue
 import PySimpleGUI as sg
 import os.path
 from inputValidator import * 
@@ -19,18 +18,18 @@ col1 = [
         [sg.Button('Network Settings', pad=(2, 35), key='-NETWORK_SETTINGS-')]  
     ]
 col2 = [
-        [sg.Text('Image Path')],[sg.Input(size=(inputWidth,1)), sg.FileBrowse(size=(buttonWidth, 1), key='-IMAGE-', pad=inputPadding)],
-        [sg.Text('Embedded_src_Path')],[sg.Input(size=(inputWidth,1)), sg.FileBrowse(size=(buttonWidth, 1),  key='-EMBEDED_SRC-',)], 
+        [sg.Text('Image Path')],[sg.Input(size=(inputWidth,1),key='-IMAGE-'), sg.FileBrowse(size=(buttonWidth, 1), pad=inputPadding)],
+        [sg.Text('Embedded_src_Path')],[sg.Input(size=(inputWidth,1),key='-EMBEDED_SRC-'), sg.FileBrowse(size=(buttonWidth, 1))], 
     ]
 col3 = [
-        [sg.Text('farmserverfillsrc')], [sg.Input(size=(inputWidth,1)), sg.FileBrowse(size=(buttonWidth, 1), key='-FARMSERVER-', pad=inputPadding)],
-        [sg.Text('farmserverf1installersrc')], [sg.Input(size=(inputWidth,1)), sg.FileBrowse(size=(buttonWidth, 1), key='-FARMSERVERF1INSTALLER-', pad=inputPadding)],
-        [sg.Text('pathtodbfile')], [sg.Input(size=(inputWidth,1)), sg.FileBrowse(size=(buttonWidth, 1), key='-DB_FILE-',)]  
+        [sg.Text('farmserverfillsrc')], [sg.Input(size=(inputWidth,1),key='-FARMSERVER-'), sg.FileBrowse(size=(buttonWidth, 1), pad=inputPadding)],
+        [sg.Text('farmserverf1installersrc')], [sg.Input(size=(inputWidth,1), key='-FARMSERVERF1INSTALLER-'), sg.FileBrowse(size=(buttonWidth, 1), pad=inputPadding)],
+        [sg.Text('pathtodbfile')], [sg.Input(size=(inputWidth,1), key='-DB_FILE-'), sg.FileBrowse(size=(buttonWidth, 1))]  
     ]
 col4 = [
-        [sg.Text('import database')],[sg.Input(size=(inputWidth,1)), sg.Checkbox('', size=(buttonWidth, 1), key='-IMPORTDB-',pad=inputPadding)],
-        [sg.Text('nand_src_path')],[sg.Input(size=(inputWidth,1)), sg.FileBrowse(size=(buttonWidth, 1), key='-NAND_SRC_PATH-', pad=inputPadding)], 
-        [sg.Text('dbfilesrc')],[sg.Input(size=(inputWidth,1)), sg.FileBrowse(size=(buttonWidth, 1), key='-DB_FILE_SRC-',)]  
+        [sg.Text('import database')],[sg.Input(size=(inputWidth,1), key='-IMPORTDB-'), sg.Checkbox('', size=(buttonWidth, 1),key='-IMPORTDBBOOL-',pad=inputPadding)],
+        [sg.Text('nand_src_path')],[sg.Input(size=(inputWidth,1), key='-NAND_SRC_PATH-'), sg.FileBrowse(size=(buttonWidth, 1), pad=inputPadding)], 
+        [sg.Text('dbfilesrc')],[sg.Input(size=(inputWidth,1),key='-DB_FILE_SRC-'), sg.FileBrowse(size=(buttonWidth, 1))]  
     ]
 col5 = [
         [sg.Button('Save Settings', pad=((5, 170)), key='-SAVE-',)]  
@@ -43,7 +42,7 @@ row2Col1 = [
     ]
 row2Col2 = [
         [sg.Text("som_desired_ip")],[sg.Input(size=(inputWidth,1), pad=inputPadding, key='-SOM_DESIRED_IP-')],
-        [sg.Text('f1_unit_prep_final_ip_config')],[sg.Input(size=(inputWidth,1)), sg.Button('DHCP/\nstatic', size=(buttonWidth,2),key='-F1_UNIT_PREP_FINAL_IP-', pad=inputPadding)], 
+        [sg.Text('f1_unit_prep_final_ip_config')],[sg.Input(size=(inputWidth,1), key='-F1_UNIT-'), sg.Button('DHCP/\nstatic', size=(buttonWidth,2),key='-DHCPBTN-', pad=inputPadding)], 
     ]
 row2Col3 = [
         [sg.Text('')],
@@ -52,7 +51,7 @@ row2Col4 = [
         [sg.Text('')],
     ]
 row2Col5 = [
-        [sg.Button('Continue', pad=(50), key='-CONTINUE-')],
+        [sg.Button('Continue', pad=(5, 50), key='-CONTINUE-')],
         [sg.Button('Open Log Folder', pad=(5,30), key='-OPEN_LOG_FOLDER-')]
     ]
 
@@ -92,25 +91,27 @@ window = sg.Window("Dialog Title", layout)
 progress_bar = window['progressbar']
 i = 0
 
-is_valid = False
-inValidList = []
-# Run a while loop for continuios iterations Event Loop
-while True:
-    event, values = window.read()
-    progress_bar.UpdateBar(i + 50)
 
-    # if event == "-IMAGE-":
-    if event == "-NETWORK_SETTINGS-":
-        continue
-    elif event == "-SAVE-":
-        continue
-    elif event == "OPEN_LOG_FOLDER":
-        continue
-    elif event == "-F1_UNIT_PREP_FINAL_IP-":
-        continue
-    elif event == "-CONTINUE-":
-        result = ValidateInput(values)
-window.close()
+if __name__ == '__main__':
+    is_valid = False
+    inValidList = []
+    # Run a while loop for continuios iterations Event Loop
+    while True:
+        event, values = window.read()
+        progress_bar.UpdateBar(i + 50)
+
+        # if event == "-IMAGE-":
+        if event == "-NETWORK_SETTINGS-":
+            continue
+        elif event == "-SAVE-":
+            result = ValidateInputs(values)
+        elif event == "OPEN_LOG_FOLDER":
+            continue
+        elif event == "-DHCP-":
+            continue
+        elif event == "-CONTINUE-":
+            continue
+    window.close()
 
 
 
