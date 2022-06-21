@@ -7,17 +7,15 @@ import serial.tools.list_ports
 inValidList = []
 isValid = True
 
-def ValidateRow1Inputs(values, window):
+def ValidateRow1Inputs(values, window) -> list:
+    global inValidList
+    inValidList.clear()
     '''Returns tuple (success, extraction_type)'''
     for value in values:
         if 'BROWSE' in value.upper():
-            #print(value)
             pass
         else:
             if value == "-HOST_IP_INPUT-" or value == "-SERIAL_PORT-":
-                if value == '-SERIAL_PORT-':
-                    pass
-
                 ValidateInput(value, values)
 
             elif (value == "-IMAGE-" or value == "-EMBEDED_SRC-" or 
@@ -31,8 +29,11 @@ def ValidateRow1Inputs(values, window):
                     if values[value]:
                         value = "-IMPORTDB-"
                         CheckValidFilePath(values, value)
-
-    ThrowPopUpError(inValidList, window)
+    if len(inValidList) > 0:
+        print(len(inValidList))
+        ThrowPopUpError(inValidList, window)
+    
+    return inValidList
 
 
 def ThrowPopUpError(inValidList, window):
@@ -61,7 +62,6 @@ def ThrowPopUpError(inValidList, window):
         invalidMarkups.append(mapInputs[value])
     
     sg.PopupError(f'Incorrect INPUT file / files for the following Catagories!\n {printError(invalidMarkups)}')
-    inValidList.clear()
     invalidMarkups.clear()
 
 def printError(errors):
@@ -73,58 +73,47 @@ def printError(errors):
 
 def CheckValidFilePath(values, value):
     path = values[value]
-    global isValid
+    global inValidList
 
     if type(path) == bool:
         inValidList.append(value)
-        isValid = False
     elif len(path) == 0 or path == '':
         inValidList.append(value)
-        isValid = False
     elif os.path.isdir(path):
         inValidList.append(value)
-        isValid = False
 
     elif not os.path.exists(path): 
         inValidList.append(value)
-        isValid = False
     else:
         file_extension = os.path.splitext(path)[1]
         if file_extension == '':
             inValidList.append(value)
-            isValid = False
-        
-
-
 
 
 def ValidateInput(value, values):
-    global isValid
+    global inValidList
     v = values[value]
     if len(v) <= 0 or v == '':
         inValidList.append(value)
-        isValid = False
 
 def ValidatePortLength(value, values):
-    global isValid
+    global inValidList
     v = values[value]
     if len(v) != 4:
         inValidList.append(value)
-        isValid = False
 
 def validate_ip_address(value, values):
-    global isValid
+    global inValidList
     add = values[value]
     try:
         ip = ipaddress.ip_address(add)
-        print("IP address {} is valid. The object returned is {}".format(add, ip))
     except:
         inValidList.append(value)
-        isValid = False
 
 #---------------row two elements for validation-------------------------]
-def ValidateAllInputs(values, window):
-    global isValid
+def ValidateAllInputs(values, window) -> list:
+    global inValidList
+    isValid = False
     for value in values:
         if value == "-SN-":
             ValidateInput(value, values)
@@ -134,20 +123,19 @@ def ValidateAllInputs(values, window):
             validate_ip_address(value, values)
         elif value == '-F1_UNIT-':
             v = values[value]
-            print(v)
             if v == 'Static':
                 Static = True
             elif v == 'DHCP':
                 DHCP = True
             else:
                 inValidList.append(value)
-                isValid = False
-
+    ValidateRow1Inputs(values, window, inValidList)
     
-    ValidateRow1Inputs(values, window)
-
-    return isValid
-
+    if len(inValidList) == 0:
+        isValid = True
+    else:
+        inValidList.clear()
+    return isValid, inValidList
 
 
 def updateStatusBar(progress_bar, i):

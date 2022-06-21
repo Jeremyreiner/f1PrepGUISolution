@@ -121,17 +121,39 @@ if __name__ == '__main__':
     while True:
         event, values = window.read(timeout=100)
         window['-LOADING-'].update_animation(popAnim, time_between_frames=10)
+        
         if event == "-SAVE-":
             i, progress_bar = updateStatusBar(progress_bar, i)
-            ValidateRow1Inputs(values, window)
+            errors = ValidateRow1Inputs(values, window)
+            
+            valuesList = []
+
+            for value in values.keys():
+                if 'BROWSE' in value.upper():
+                    pass
+                else:
+                    valuesList.append(value)
+
+            pairings = zip(errors, valuesList)
+            for pair in pairings:
+                if not pair[0] == "-SERIAL_PORT-" :
+                    window[f'{pair[0]}'].Update(background_color = "red")
+                if pair[0] in valuesList:
+                    valuesList.remove(pair[0])
+            
+            for value in valuesList:
+                if not value == "-SERIAL_PORT-" and not value == "-F1_UNIT-":
+                    window[f'{value}'].Update(background_color = "white")
+
 
         elif event == "-CONTINUE-":
             
-            isValid = ValidateAllInputs(values, window)
+            isValid, isValidList = ValidateAllInputs(values, window, inValidList)
             i, progress_bar = updateStatusBar(progress_bar, i)
-            if isValid: #for dev purposes remove lines 133 -134 from if statement to see button swap
+            if isValid[0]: #for dev purposes remove lines 133 -134 from if statement to see button swap
                 window['-CONTINUE-'].Update(visible=False)
                 window['-LOADING-'].Update(visible=True)
+                window['-SAVE-'].Update()
 
         elif event == "-NETWORK_SETTINGS-":
             i, progress_bar = updateStatusBar(progress_bar, i)
