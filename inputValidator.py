@@ -2,11 +2,12 @@ from pathlib import Path
 import ipaddress
 import PySimpleGUI as sg
 import os.path
+import serial.tools.list_ports
 
 inValidList = []
 isValid = True
 
-def ValidateRow1Inputs(values):
+def ValidateRow1Inputs(values, window):
     '''Returns tuple (success, extraction_type)'''
     for value in values:
         if 'BROWSE' in value.upper():
@@ -31,10 +32,11 @@ def ValidateRow1Inputs(values):
                         value = "-IMPORTDB-"
                         CheckValidFilePath(values, value)
 
-    ThrowPopUpError(inValidList)
+    ThrowPopUpError(inValidList, window)
 
 
-def ThrowPopUpError(inValidList):
+def ThrowPopUpError(inValidList, window):
+    window.read(timeout=100)
     invalidMarkups = []
 
     if len(inValidList) > 0:
@@ -71,8 +73,11 @@ def printError(errors):
 
 def CheckValidFilePath(values, value):
     path = values[value]
+    global isValid
+
     if type(path) == bool:
-        pass
+        inValidList.append(value)
+        isValid = False
     elif len(path) == 0 or path == '':
         inValidList.append(value)
         isValid = False
@@ -80,51 +85,35 @@ def CheckValidFilePath(values, value):
         inValidList.append(value)
         isValid = False
 
-    elif not os.path.exists(path):
+    elif not os.path.exists(path): 
         inValidList.append(value)
         isValid = False
     else:
-        #is image path
-        if (path.lower().endswith('.jpeg') or path.lower().endswith('.png')
-            or path.lower().endswith('.png') or path.lower().endswith('.webp') 
-            or path.lower().endswith('.svg') or path.lower().endswith('.gz')):
-            if value != '-IMAGE-':
-                inValidList.append(value)
-                isValid = False
-        #is embedded_src_path, nand_src_path
-        elif (path.lower().endswith('.gz') or path.lower().endswith('.bin')):
-            if value != '-EMBEDED_SRC-' and value != '-NAND_SRC_PATH-' :
-                inValidList.append(value)
-                isValid = False
-        #is database path
-        elif (path.lower().endswith('.sql') or path.lower().endswith('.json') or path.lower().endswith('.exe')):
-            if value != '-DB_FILE-' and value != '-DB_FILE_SRC-' and value != '-IMPORTDB-' :
-                inValidList.append(value)
-                isValid = False
-        #is farmerserver path
-        elif (path.lower().endswith('.jar') or path.lower().endswith('.sh')):
-            if value != '-FARMSERVERF1INSTALLER-' and value != '-FARMSERVER-':
-                inValidList.append(value)
-                isValid = False
-        else:
-            ext_type = Path(path).suffix[1:].lower() 
-            print(f"Found in else: {value}, {ext_type}")
+        file_extension = os.path.splitext(path)[1]
+        if file_extension == '':
+            inValidList.append(value)
+            isValid = False
+        
+
 
 
 
 def ValidateInput(value, values):
+    global isValid
     v = values[value]
     if len(v) <= 0 or v == '':
         inValidList.append(value)
         isValid = False
 
 def ValidatePortLength(value, values):
+    global isValid
     v = values[value]
     if len(v) != 4:
         inValidList.append(value)
         isValid = False
 
 def validate_ip_address(value, values):
+    global isValid
     add = values[value]
     try:
         ip = ipaddress.ip_address(add)
@@ -134,9 +123,8 @@ def validate_ip_address(value, values):
         isValid = False
 
 #---------------row two elements for validation-------------------------]
-def ValidateRow2Inputs(values):
-    
-    
+def ValidateAllInputs(values, window):
+    global isValid
     for value in values:
         if value == "-SN-":
             ValidateInput(value, values)
@@ -155,4 +143,14 @@ def ValidateRow2Inputs(values):
                 inValidList.append(value)
                 isValid = False
 
-    ValidateRow1Inputs(values)
+    
+    ValidateRow1Inputs(values, window)
+
+    return isValid
+
+
+
+def updateStatusBar(progress_bar, i):
+    progress_bar.UpdateBar(i + 50)
+    i += 50
+    return i, progress_bar
