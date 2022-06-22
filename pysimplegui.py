@@ -121,7 +121,7 @@ if __name__ == '__main__':
     while True:
         event, values = window.read(timeout=100)
         window['-LOADING-'].update_animation(popAnim, time_between_frames=10)
-        #----------code from 125 to 146 correctly identifies inputs and changes bg colors
+
         if event == "-SAVE-":
             i, progress_bar = updateStatusBar(progress_bar, i)
             errors = ValidateRow1Inputs(values, window)

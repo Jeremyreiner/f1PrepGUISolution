@@ -15,8 +15,10 @@ def ValidateRow1Inputs(values, window) -> list:
         if 'BROWSE' in value.upper():
             pass
         else:
-            if value == "-HOST_IP_INPUT-" or value == "-SERIAL_PORT-":
+            if value == "-SERIAL_PORT-":
                 Validaterow1Input(value, values)
+            elif value == "-HOST_IP_INPUT-":
+                validate_ip_address_row1(value, values)
 
             elif (value == "-IMAGE-" or value == "-EMBEDED_SRC-" or 
                     value == "-FARMSERVER-" or value == "-FARMSERVERF1INSTALLER-" or
@@ -64,7 +66,17 @@ def ThrowPopUpError(window):
     sg.PopupError(f'Incorrect INPUT file / files for the following Catagories!\n {printError(invalidMarkups)}')
 
 
-def printError(errors):
+def validfile(path, forced_ext='') -> bool:
+    if not os.path.exists(path): 
+        return False
+    if forced_ext > '':
+        file_extension = os.path.splitext(path)[1]
+        if file_extension != forced_ext:
+            return False
+    return True
+
+
+def printError(errors) -> str:
     str = ''
     for error in errors:
         str += f"\n- {error}"
@@ -85,8 +97,16 @@ def CheckValidFilePath(values, value):
     elif not os.path.exists(path): 
         row1Validations.append(value)
     else:
-        file_extension = os.path.splitext(path)[1]
-        if file_extension == '':
+        file_exten_value = True
+        if value == '-IMAGE-' or value == "-EMBEDED_SRC-":
+            file_exten_value = validfile(path, forced_ext='.gz')
+        elif value == "-FARMSERVER-":
+            file_exten_value = validfile(path, forced_ext='.jar')
+        elif value == "-FARMSERVERF1INSTALLER-":
+            file_exten_value = validfile(path, forced_ext='.sh')
+        elif value == "-DB_FILE-" or value == "-DB_FILE_SRC-" or value == "-IMPORTDB-":
+            file_exten_value = validfile(path, forced_ext='.sql')
+        if not file_exten_value:
             row1Validations.append(value)
 
 
@@ -111,7 +131,7 @@ def ValidatePortLength(value, values):
         row2Validations.append(value)
 
 
-def validate_ip_address(value, values):
+def validate_ip_address_row2(value, values):
     global row2Validations
     add = values[value]
     try:
@@ -119,6 +139,14 @@ def validate_ip_address(value, values):
     except:
         row2Validations.append(value)
 
+
+def validate_ip_address_row1(value, values):
+    global row2Validations
+    add = values[value]
+    try:
+        ip = ipaddress.ip_address(add)
+    except:
+        row1Validations.append(value)
 #---------------row two elements for validation-------------------------]
 def ValidateAllInputs(values, window) -> tuple:
     '''returns a tuple, first value being a boolean statement, and the second a list of invalid input elements'''
@@ -131,7 +159,7 @@ def ValidateAllInputs(values, window) -> tuple:
         elif value == "-TO_RTS-" or value == '-FROM_RTS-':
             ValidatePortLength(value, values)
         elif value == "-SOM_DESIRED_IP-":
-            validate_ip_address(value, values)
+            validate_ip_address_row2(value, values)
         elif value == '-F1_UNIT-':
             v = values[value]
             if v == 'Static':
@@ -146,10 +174,10 @@ def ValidateAllInputs(values, window) -> tuple:
 
     if len(allInputList) == 0:
         isValid = True
-    return (isValid, allInputList)
+    return isValid, allInputList
 
 
-def updateStatusBar(progress_bar, i):
+def updateStatusBar(progress_bar, i) -> tuple:
     progress_bar.UpdateBar(i + 50)
     i += 50
     return i, progress_bar
@@ -174,3 +202,5 @@ def HighlightIncorrectInputs(values, errors, window):
     for value in valuesList:
         if not value == "-SERIAL_PORT-" and not value == "-F1_UNIT-" and not value == '-IMPORTDBBOOL-':
             window[f'{value}'].Update(background_color = "white")
+
+
