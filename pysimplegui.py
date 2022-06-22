@@ -12,7 +12,7 @@ width = max(map(len, selection))+1
 inputWidth = 25
 buttonWidth = 5
 inputPadding = ((3, 5))
-clmnSize = (250, 200)
+clmnSize = (250, 201)
 popAnim = line_boxes
 
 col1 = [
@@ -49,11 +49,11 @@ col5 = [
 ]
 
 row2Col1 = [
-    [sg.Text('Serial Number- AZ304i234')
+    [sg.Text('Serial Number')
      ], [sg.Input(size=(inputWidth, 1), pad=inputPadding, key='-SN-')],
-    [sg.Text("TO_RTS_PORT (1000-65535)")], [sg.Input(size=(inputWidth,
+    [sg.Text("TO_RTS_PORT")], [sg.Input(size=(inputWidth,
                                                            1), pad=inputPadding,  key='-TO_RTS-',)],
-    [sg.Text("FROM_RTS_PORT (1000-65535)")
+    [sg.Text("FROM_RTS_PORT")
      ], [sg.Input(size=(inputWidth, 1),  key='-FROM_RTS-',)],
 ]
 row2Col2 = [
@@ -71,8 +71,8 @@ row2Col4 = [
 ]
 row2Col5 = [
     [sg.Image(data=popAnim, enable_events=True, visible=False , key='-LOADING-', right_click_menu=['UNUSED', ['Exit']], pad=(10, 60))],
-    [sg.Button('', image_data=playBtnBase64, button_color=(sg.TRANSPARENT_BUTTON),border_width=0, image_subsample=8, key='-CONTINUE-', visible=True)],
-    [sg.Button('Open Log Folder', pad=(5, 30), key='-OPEN_LOG_FOLDER-')]
+    [sg.Button('', image_data=playBtnBase64, button_color=(sg.TRANSPARENT_BUTTON),border_width=0, image_subsample=8, key='-CONTINUE-',pad=(5, 40), visible=True)],
+    [sg.Button('Open Log Folder', pad=(5, 10), key='-OPEN_LOG_FOLDER-')]
 ]
 
 
@@ -121,39 +121,21 @@ if __name__ == '__main__':
     while True:
         event, values = window.read(timeout=100)
         window['-LOADING-'].update_animation(popAnim, time_between_frames=10)
-        
+        #----------code from 125 to 146 correctly identifies inputs and changes bg colors
         if event == "-SAVE-":
             i, progress_bar = updateStatusBar(progress_bar, i)
             errors = ValidateRow1Inputs(values, window)
-            
-            valuesList = []
-
-            for value in values.keys():
-                if 'BROWSE' in value.upper():
-                    pass
-                else:
-                    valuesList.append(value)
-
-            pairings = zip(errors, valuesList)
-            for pair in pairings:
-                if not pair[0] == "-SERIAL_PORT-" :
-                    window[f'{pair[0]}'].Update(background_color = "red")
-                if pair[0] in valuesList:
-                    valuesList.remove(pair[0])
-            
-            for value in valuesList:
-                if not value == "-SERIAL_PORT-" and not value == "-F1_UNIT-":
-                    window[f'{value}'].Update(background_color = "white")
-
+            HighlightIncorrectInputs(values, errors, window)
 
         elif event == "-CONTINUE-":
             
-            isValid, isValidList = ValidateAllInputs(values, window, inValidList)
+            isValid, isValidList = ValidateAllInputs(values, window)
+            HighlightIncorrectInputs(values, isValidList, window)
+
             i, progress_bar = updateStatusBar(progress_bar, i)
-            if isValid[0]: #for dev purposes remove lines 133 -134 from if statement to see button swap
+            if isValid: #for dev purposes remove lines 133 -134 from if statement to see button swap
                 window['-CONTINUE-'].Update(visible=False)
                 window['-LOADING-'].Update(visible=True)
-                window['-SAVE-'].Update()
 
         elif event == "-NETWORK_SETTINGS-":
             i, progress_bar = updateStatusBar(progress_bar, i)
@@ -162,5 +144,7 @@ if __name__ == '__main__':
         elif event == "-OPEN_LOG_FOLDER-":
             i, progress_bar = updateStatusBar(progress_bar, i)
             continue
+        elif event == "WindowClose":
+            window.close()
 
-    window.close()
+
