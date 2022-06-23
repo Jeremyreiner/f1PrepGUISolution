@@ -1,48 +1,11 @@
-from pathlib import Path
+
 import ipaddress
 import PySimpleGUI as sg
 import os.path
-import serial.tools.list_ports
 
 row1Validations = []
 row2Validations =[]
-
-def ValidateRow1Inputs(values, window) -> list:
-    global row1Validations
-    row1Validations.clear()
-    '''Returns list of invalid inputs from window'''
-    for value in values:
-        if 'BROWSE' in value.upper():
-            pass
-        else:
-            if value == "-SERIAL_PORT-":
-                Validaterow1Input(value, values)
-            elif value == "-HOST_IP_INPUT-":
-                validate_ip_address_row1(value, values)
-
-            elif (value == "-IMAGE-" or value == "-EMBEDED_SRC-" or 
-                    value == "-FARMSERVER-" or value == "-FARMSERVERF1INSTALLER-" or
-                    value == "-DB_FILE-" or value == "-NAND_SRC_PATH-" or value == "-DB_FILE_SRC-"):
-                
-                CheckValidFilePath(values, value)
-
-            else:
-                if value == "-IMPORTDBBOOL-":
-                    if values[value]:
-                        value = "-IMPORTDB-"
-                        CheckValidFilePath(values, value)
-    if len(row1Validations) > 0:
-        ThrowPopUpError(window)
-    
-    return row1Validations
-
-
-def ThrowPopUpError(window):
-    global row1Validations
-    global row2Validations
-    invalidMarkups = []
-
-    mapInputs = {
+mapInputs = {
         '-IMAGE-': 'Image Path',
         '-EMBEDED_SRC-': 'Embedded_src_Path',
         '-FARMSERVER-': 'farmserverfillsrc',
@@ -59,6 +22,15 @@ def ThrowPopUpError(window):
         '-SOM_DESIRED_IP-': 'som_desired_ip',
         '-F1_UNIT-': 'F1_UNIT_PREP_FINAL_IP_CONFIGS',
     }
+mapInputValues = {}
+
+
+def ThrowPopUpError():
+    global row1Validations
+    global row2Validations
+    global mapInputs
+    invalidMarkups = []
+
     [invalidMarkups.append(mapInputs[x]) for x in row1Validations]
     if len(row2Validations) > 0:
         [invalidMarkups.append(mapInputs[x]) for x in row2Validations]
@@ -86,6 +58,7 @@ def printError(errors) -> str:
 def CheckValidFilePath(values, value):
     path = values[value]
     global row1Validations
+    global mapInputValues
 
     if type(path) == bool:
         row1Validations.append(value)
@@ -106,81 +79,73 @@ def CheckValidFilePath(values, value):
             file_exten_value = validfile(path, forced_ext='.sh')
         elif value == "-DB_FILE-" or value == "-DB_FILE_SRC-" or value == "-IMPORTDB-":
             file_exten_value = validfile(path, forced_ext='.sql')
+            if not file_exten_value:
+                file_exten_value = validfile(path, forced_ext='.json')
+        elif value == "-NAND_SRC_PATH-":
+            file_exten_value = validfile(path, forced_ext='.bin')
+        
         if not file_exten_value:
             row1Validations.append(value)
-
+        else:
+            mapInputValues[mapInputs[value]] = path
 
 def Validaterow2Input(value, values):
     global row2Validations
+    global mapInputValues
     v = values[value]
     if len(v) <= 0 or v == '':
         row2Validations.append(value)
+    else:
+        mapInputValues[mapInputs[value]] = v
 
 
 def Validaterow1Input(value, values):
-    global row2Validations
+    global row1Validations
+    global mapInputValues
     v = values[value]
     if len(v) <= 0 or v == '':
         row1Validations.append(value)
+    else:
+        mapInputValues[mapInputs[value]] = v
 
 
 def ValidatePortLength(value, values):
     global row2Validations
+    global mapInputValues
     v = values[value]
     if len(v) != 4:
         row2Validations.append(value)
+    else:
+        mapInputValues[mapInputs[value]] = v
 
 
 def validate_ip_address_row2(value, values):
     global row2Validations
-    add = values[value]
+    global mapInputValues
+    address = values[value]
     try:
-        ip = ipaddress.ip_address(add)
+        ipaddress.ip_address(address)
+        mapInputValues[mapInputs[value]] = address
     except:
         row2Validations.append(value)
+        
 
 
 def validate_ip_address_row1(value, values):
-    global row2Validations
-    add = values[value]
+    global row1Validations
+    global mapInputValues
+    address = values[value]
     try:
-        ip = ipaddress.ip_address(add)
+        ipaddress.ip_address(address)
+        mapInputValues[mapInputs[value]] = address
     except:
         row1Validations.append(value)
-#---------------row two elements for validation-------------------------]
-def ValidateAllInputs(values, window) -> tuple:
-    '''returns a tuple, first value being a boolean statement, and the second a list of invalid input elements'''
-    global row2Validations
-    row2Validations.clear()
-    isValid = False
-    for value in values:
-        if value == "-SN-":
-            Validaterow2Input(value, values)
-        elif value == "-TO_RTS-" or value == '-FROM_RTS-':
-            ValidatePortLength(value, values)
-        elif value == "-SOM_DESIRED_IP-":
-            validate_ip_address_row2(value, values)
-        elif value == '-F1_UNIT-':
-            v = values[value]
-            if v == 'Static':
-                DHCP = False
-            elif v == 'DHCP':
-                DHCP = True
-            else:
-                row2Validations.append(value)
-    row1Validations = ValidateRow1Inputs(values, window)
-    allInputList = row1Validations + row2Validations
-    allInputList.sort()
-
-    if len(allInputList) == 0:
-        isValid = True
-    return isValid, allInputList
 
 
-def updateStatusBar(progress_bar, i) -> tuple:
-    progress_bar.UpdateBar(i + 50)
-    i += 50
-    return i, progress_bar
+def updateStatusBar(progress_bar, progress) -> tuple:
+    progress_bar.UpdateBar(progress + 50)
+    progress += 50
+    return progress_bar, progress
 
 
 def HighlightIncorrectInputs(values, errors, window):
@@ -202,5 +167,66 @@ def HighlightIncorrectInputs(values, errors, window):
     for value in valuesList:
         if not value == "-SERIAL_PORT-" and not value == "-F1_UNIT-" and not value == '-IMPORTDBBOOL-':
             window[f'{value}'].Update(background_color = "white")
+
+#---------------row one elements for validation-------------------------
+def ValidateRow1Inputs(values) -> list:
+    global row1Validations
+    row1Validations.clear()
+    '''Returns list of invalid inputs from window'''
+    for value in values:
+        if 'BROWSE' in value.upper():
+            pass
+        else:
+            if value == "-SERIAL_PORT-":
+                Validaterow1Input(value, values)
+            elif value == "-HOST_IP_INPUT-":
+                validate_ip_address_row1(value, values)
+
+            elif (value == "-IMAGE-" or value == "-EMBEDED_SRC-" or 
+                    value == "-FARMSERVER-" or value == "-FARMSERVERF1INSTALLER-" or
+                    value == "-DB_FILE-" or value == "-NAND_SRC_PATH-" or value == "-DB_FILE_SRC-"):
+                
+                CheckValidFilePath(values, value)
+
+            else:
+                if value == "-IMPORTDBBOOL-":
+                    if values[value]:
+                        value = "-IMPORTDB-"
+                        CheckValidFilePath(values, value)
+    if len(row1Validations) > 0:
+        ThrowPopUpError()
+    
+    return row1Validations
+#---------------row two elements for validation-------------------------]
+def ValidateAllInputs(values) -> tuple:
+    '''returns a tuple, first value being a boolean statement, and the second a list of invalid input elements'''
+    global row2Validations
+    global mapInputValues
+    row2Validations.clear()
+    isValid = True #Set to true to run development without inputs
+    for value in values:
+        if value == "-SN-":
+            Validaterow2Input(value, values)
+        elif value == "-TO_RTS-" or value == '-FROM_RTS-':
+            ValidatePortLength(value, values)
+        elif value == "-SOM_DESIRED_IP-":
+            validate_ip_address_row2(value, values)
+        elif value == '-F1_UNIT-':
+            v = values[value]
+            if v == 'Static':
+                mapInputValues[mapInputs[value]] = v
+                DHCP = False #not returning bool value anywhere but input value of static and dhcp returned
+            elif v == 'DHCP':
+                mapInputValues[mapInputs[value]] = v
+                DHCP = True
+            else:
+                row2Validations.append(value)
+    row1Validations = ValidateRow1Inputs(values)
+    allInputList = row1Validations + row2Validations
+
+    if len(allInputList) == 0:
+        isValid = True
+    return isValid, allInputList
+
 
 
