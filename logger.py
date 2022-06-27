@@ -1,29 +1,34 @@
+from concurrent.futures import thread
 import queue
 import logging
 import threading
 from pysimpleguiLayout import *
-from guiExtensionFunctions import mapInputValues
+from guiExtensionFunctions import mapValidInputValues
+import time
 
 logger = logging.getLogger('mymain')  # global logger
-# Will be replaced by the F1_test run function.
-def mock_script(d: dict):
-    for key in d:
-        txt = f'{key},{d[key]}\n'
-        logger.info(txt)
-    
 
-class ThreadedApp(threading.Thread):
-    def __init__(self, params):
+class ThreadedApp():
+    def __init__(self, mapValidInputValues, log_queue, queue_handler, window):
         super().__init__()
         self._stop_event = threading.Event()
-        self.params = params
+        self.params = mapValidInputValues
+        self.queue = log_queue
+        self.handler = queue_handler
+        self.window = window
 
     def run(self):
-        mock_script(self.params)
+        x = threading.Thread(target=mock_script, kwargs=(self.params))
+        x.start()
+
+    def runLog(self):
+        x = threading.Thread(target=run_logger, args=(self.queue, self.handler, self.window ))
+        x.start()
+
+        #run_logger(self.queue, self.handler, self.window)
 
     def stop(self):
         self._stop_event.set()
-
 
 class QueueHandler(logging.Handler):
     def __init__(self, log_queue):
@@ -33,33 +38,57 @@ class QueueHandler(logging.Handler):
     def emit(self, record):
         self.log_queue.put(record)
 
-def run_logger(event) -> list:
-    logs = []
-    appStarted = False
+# Will be replaced by the F1_test run function.
+def mock_script(**kwargs):
+    for key in kwargs:
+        txt = f'{key}: {kwargs[key]}\n'
+        logger.info(txt)
+        time.sleep(1)
+
+def startApp(app_started, window) -> tuple:
     # Setup logging and start app
     logging.basicConfig(level=logging.DEBUG)
     log_queue = queue.Queue()
     queue_handler = QueueHandler(log_queue)
     logger.addHandler(queue_handler)
-    while True:
-        if len(mapInputValues) > 0: # if statement used only for dev purposes
-            params = mapInputValues
-        threadedApp = ThreadedApp(params)
-        print(len(params.keys()))
-        if appStarted is False:
-            threadedApp.start()
-            logger.debug(f'App started\n---------------------\n')
-            appStarted = True
-        elif event in  (None, 'Exit'):
-            break
+    #threaded_app = ThreadedApp(mapValidInputValues)
+    threadedApp = ThreadedApp(mapValidInputValues, log_queue, queue_handler, window)
+    if not app_started:
+        threadedApp.run()
+        logger.debug(f'App started\n---------------------\n')
+        app_started = True
+        return app_started,threadedApp
 
-        # Poll queue
-        try:
-            record = log_queue.get(block=False)
-        except queue.Empty:
-            pass
-        else:
-            msg = queue_handler.format(record)
-            logs.append(msg)
-            if len(logs) == len(params.keys()):
-                return logs
+def run_logger(*args):
+    log_queue, queue_handler, window = args
+    try:
+        record = log_queue.get(block=False)
+        msg = queue_handler.format(record)
+        window['-LOG-'].update(msg+'\n', append=True)
+        if log_queue.unfinished_tasks >= 1:
+            time.sleep(1)
+    except queue.Empty:
+        pass
+
+
+
+#fix logging for actual que and not reiterating over list 
+
+'''
+--Levels of logging --
+DEBUG -  Detailed info typically of iunterest only when diagnoising problems
+
+INFO: Confirmation that things are working as expected
+
+ERROR: Due to ta more serious problem, the software has not been able to perform some function
+
+CRITICAL: A serious error, indicating that the program itself may be unable to continue running
+'''
+'''
+THREAD = a flow of execution, like a separate order of instructions. However each thread takes a turn running to achieve concurrency. 
+        GIL = global interpreter lock, allows only one thread to hold the control of python interpreter at any one time
+            
+CPU BOUND = program task spends most of its time waiting for internal events (CPU intensive) use multiprocessing
+
+IO BOUND = program / task spends most of its time waiting for external events (user inputs, web scraping) in multithreading
+'''

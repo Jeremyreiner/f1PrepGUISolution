@@ -22,7 +22,7 @@ mapInputs = {
         '-SOM_DESIRED_IP-': 'som_desired_ip',
         '-F1_UNIT-': 'F1_UNIT_PREP_FINAL_IP_CONFIGS',
     }
-mapInputValues = {}
+mapValidInputValues = {}
 
 
 def ThrowPopUpError():
@@ -58,7 +58,7 @@ def printError(errors) -> str:
 def CheckValidFilePath(values, value):
     path = values[value]
     global row1Validations
-    global mapInputValues
+    global mapValidInputValues
 
     if type(path) == bool:
         row1Validations.append(value)
@@ -87,45 +87,45 @@ def CheckValidFilePath(values, value):
         if not file_exten_value:
             row1Validations.append(value)
         else:
-            mapInputValues[mapInputs[value]] = path
+            mapValidInputValues[mapInputs[value]] = path
 
 def Validaterow2Input(value, values):
     global row2Validations
-    global mapInputValues
+    global mapValidInputValues
     v = values[value]
     if len(v) <= 0 or v == '':
         row2Validations.append(value)
     else:
-        mapInputValues[mapInputs[value]] = v
+        mapValidInputValues[mapInputs[value]] = v
 
 
 def Validaterow1Input(value, values):
     global row1Validations
-    global mapInputValues
+    global mapValidInputValues
     v = values[value]
     if len(v) <= 0 or v == '':
         row1Validations.append(value)
     else:
-        mapInputValues[mapInputs[value]] = v
+        mapValidInputValues[mapInputs[value]] = v
 
 
 def ValidatePortLength(value, values):
     global row2Validations
-    global mapInputValues
+    global mapValidInputValues
     v = values[value]
     if len(v) != 4:
         row2Validations.append(value)
     else:
-        mapInputValues[mapInputs[value]] = v
+        mapValidInputValues[mapInputs[value]] = v
 
 
 def validate_ip_address_row2(value, values):
     global row2Validations
-    global mapInputValues
+    global mapValidInputValues
     address = values[value]
     try:
         ipaddress.ip_address(address)
-        mapInputValues[mapInputs[value]] = address
+        mapValidInputValues[mapInputs[value]] = address
     except:
         row2Validations.append(value)
         
@@ -133,24 +133,17 @@ def validate_ip_address_row2(value, values):
 
 def validate_ip_address_row1(value, values):
     global row1Validations
-    global mapInputValues
+    global mapValidInputValues
     address = values[value]
     try:
         ipaddress.ip_address(address)
-        mapInputValues[mapInputs[value]] = address
+        mapValidInputValues[mapInputs[value]] = address
     except:
         row1Validations.append(value)
 
 
-def updateStatusBar(progress_bar, progress) -> tuple:
-    progress_bar.UpdateBar(progress + 50)
-    progress += 50
-    return progress_bar, progress
-
-
 def HighlightIncorrectInputs(values, errors, window):
     valuesList = []
-
     for value in values.keys():
         if 'BROWSE' in value.upper():
             pass
@@ -201,7 +194,7 @@ def ValidateRow1Inputs(values) -> list:
 def ValidateAllInputs(values) -> tuple:
     '''returns a tuple, first value being a boolean statement, and the second a list of invalid input elements'''
     global row2Validations
-    global mapInputValues
+    global mapValidInputValues
     row2Validations.clear()
     isValid = True #Set to true to run development without inputs
     for value in values:
@@ -214,19 +207,18 @@ def ValidateAllInputs(values) -> tuple:
         elif value == '-F1_UNIT-':
             v = values[value]
             if v == 'Static':
-                mapInputValues[mapInputs[value]] = v
+                mapValidInputValues[mapInputs[value]] = v
                 DHCP = False #not returning bool value anywhere but input value of static and dhcp returned
             elif v == 'DHCP':
-                mapInputValues[mapInputs[value]] = v
+                mapValidInputValues[mapInputs[value]] = v
                 DHCP = True
             else:
                 row2Validations.append(value)
     row1Validations = ValidateRow1Inputs(values)
-    allInputList = row1Validations + row2Validations
+    errors = row1Validations + row2Validations
 
-    if len(allInputList) == 0:
+    if len(errors) == 0:
         isValid = True
-    return isValid, allInputList
-
+    return isValid, errors, mapValidInputValues.keys()
 
 

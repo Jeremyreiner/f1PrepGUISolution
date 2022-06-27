@@ -76,7 +76,7 @@ row2Col5 = [
     [sg.Button('', image_data=playBtnBase64, button_color=(sg.TRANSPARENT_BUTTON),border_width=0, image_subsample=4, key='-CONTINUE-', visible=True)],
     [sg.Button('Open Log Folder', pad=(5, 10), key='-OPEN_LOG_FOLDER-', visible=True)],
     # Check with ori which design is better. 77, or 103
-    # [sg.Image(data=popAnim, enable_events=True, visible=False , key='-LOADING-', right_click_menu=['UNUSED', ['Exit']], pad=(10,0))]
+    #[sg.Image(data=popAnim, enable_events=True, visible=False , key='-LOADING-', right_click_menu=['UNUSED', ['Exit']])]
 ]
 
 
@@ -101,7 +101,7 @@ row2 = [[
 row3 = [
     [
         sg.Text('Status Notes'),
-        sg.Button('Stop', key='-STOP_LOG-', size=(buttonWidth, 1)),
+        sg.Button('Stop', key='-STOP_LOG-',visible=False ,size=(buttonWidth, 1)),
         # Check with ori which design is better. 77, or 103
         sg.Image(data=popAnim, enable_events=True, visible=False , key='-LOADING-', right_click_menu=['UNUSED', ['Exit']])
     ],
