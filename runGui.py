@@ -4,8 +4,6 @@ from logger import *
 def main():
     window = Make_Win1()
     window.Maximize()
-    progress_bar = window['progressbar']
-    progress = 0
     isValid = False
     app_started = False
 
@@ -17,7 +15,7 @@ def main():
 
         if event == "-SAVE-":
             errors = ValidateRow1Inputs(values)
-            HighlightIncorrectInputs(errors, window)
+            HighlightIncorrectInputs(values, errors, window)
 
         elif event == "-CONTINUE-":
             isValid, errors, isValidList = ValidateAllInputs(values)
@@ -27,8 +25,7 @@ def main():
                 window['-CONTINUE-'].Update(visible=False)
                 window['-STOP_LOG-'].Update(visible=True)
                 window['-LOADING-'].Update(visible=True)
-                # threadedApp, app_started, threading = startApp(app_started,window)
-                app_started,threaded_app = startApp(app_started,window)
+                app_started,threaded_app = startApp(app_started,window, interval)
 
         elif event == "-NETWORK_SETTINGS-":
             continue
@@ -44,14 +41,10 @@ def main():
                 window['-LOADING-'].Update(visible=False)
             else:
                 threaded_app.runLog()
-                # update bar with runlogs intervals and fix timing of all three threads for simultaneus events
-                progress += interval
-                progress_bar.update(progress)
                 if event == "-STOP_LOG-":
                     threaded_app.stop()
                     app_started = False
-                    progress = 0
-                    progress_bar.update(progress)
+                    window['-PROGRESSBAR-'].update(0)
                     window['-LOG-'].update('')
     window.close()
 
