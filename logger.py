@@ -12,10 +12,11 @@ class ThreadedApp():
     def __init__(self, mapValidInputValues, log_queue, queue_handler, window, interval):
         super().__init__()
         '''
-        On calling the start method of Thread, run is auto activated. Threaded app has three responsibilities
+        Threaded app has three responsibilities
         1: read the script and add each item to the queue
         2: Take from the queue and add each item into the gui
-        3: Terminate created threads, join each thread into the main thread, and reset the progress bar position'''
+        3: Terminate created threads, join each thread into the main thread, and reset the progress bar position
+        '''
         self.stop_event = threading.Event()
         self.params = mapValidInputValues
         self.queue = log_queue
@@ -42,9 +43,7 @@ class ThreadedApp():
         global progress
         self.run_log = threading.Thread(target=run_logger, args=(self.queue, self.handler, self.window, self.inerval),name="loggerThread")
         self.run_log.start()
-        global progress
-        progress_stage = RequestProgress(progress)
-        return progress_stage
+        return progress
 
     def stop(self):
         '''
@@ -70,7 +69,7 @@ class QueueHandler(logging.Handler):
 def mock_script(*args, **kwargs):
     stop_event = args
     for key in kwargs:
-        txt = f'{key}: {kwargs[key]}\n'
+        txt = f'[{key}] {kwargs[key]}\n'
         logger.info(txt)
         time.sleep(1)
         if stop_event[0].is_set():
@@ -80,18 +79,18 @@ def mock_script(*args, **kwargs):
 def startApp(app_started, window, interval) -> tuple:
     '''
     Configures connections for logger and queue, and initializes the threading app class.
-    this returns the boolean statement needed in mainthread loop.
+    this returns a boolean statement needed in mainthread loop if Threading App has started.
     '''
     logging.basicConfig(level=logging.DEBUG)
     log_queue = queue.Queue()
     queue_handler = QueueHandler(log_queue)
     logger.addHandler(queue_handler)
-    threadedApp = ThreadedApp(mapValidInputValues, log_queue, queue_handler, window, interval)
+    threaded_app = ThreadedApp(mapValidInputValues, log_queue, queue_handler, window, interval)
     if not app_started:
-        threadedApp.run()
+        threaded_app.run()
         logger.debug(f'App started\n---------------------\n')
         app_started = True
-        return app_started,threadedApp
+        return app_started,threaded_app
 
 def run_logger(*args):
     '''
@@ -106,18 +105,13 @@ def run_logger(*args):
         record = log_queue.get(block=False)
         msg = queue_handler.format(record)
         if msg == 'App started\n---------------------\n':
-            window['-LOG-'].update(msg+'\n', append=True)
+            window['-LOG-'](msg+'\n', append=True)
             progress += interval
         else:
             if log_queue.unfinished_tasks >= 0:
-                window['-LOG-'].update(msg+'\n', append=True)
+                window['-LOG-'](msg+'\n', append=True)
                 progress += interval
-                window['-PROGRESSBAR-'].update(progress)
+                window['-PROGRESSBAR-'](progress)
     except queue.Empty:
         pass
-
-
-def RequestProgress(progress):
-    return progress
-
 

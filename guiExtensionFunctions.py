@@ -212,7 +212,10 @@ def ValidateRow1Inputs(values) -> list:
     return row1Validations
 #---------------row two elements for validation-------------------------]
 def ValidateAllInputs(values) -> tuple:
-    '''returns a tuple, first value being a boolean statement, and the second a list of invalid input elements'''
+    '''
+    returns a tuple, first value being a boolean statement,
+    second a list of invalid input elements,
+    and lastly a list of correct input items'''
     global row2Validations
     global mapValidInputValues
     row2Validations.clear()
