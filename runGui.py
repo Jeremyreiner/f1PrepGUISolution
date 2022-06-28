@@ -1,7 +1,6 @@
 from pysimpleguiLayout import *
 from logger import *
 
-progress
 
 def main():
     window = Make_Win1()
@@ -20,7 +19,6 @@ def main():
         if event == "-SAVE-":
             errors = ValidateRow1Inputs(values)
             HighlightIncorrectInputs(values, errors, window)
-
         elif event == "-CONTINUE-":
             valid_inputs_bool, errors, valid_inputs_List = ValidateAllInputs(values)
             HighlightIncorrectInputs(values, errors, window)
@@ -32,15 +30,12 @@ def main():
                 window['-STOP_LOG-'].Update(visible=True)
                 window['-LOADING-'].Update(visible=True)
                 app_started,threaded_app = startApp(app_started,window, interval)
-
         elif event == "-NETWORK_SETTINGS-":
             continue
-
         elif event == "-OPEN_LOG_FOLDER-":
             continue
         elif event == sg.WIN_CLOSED:
             break
-
         if valid_inputs_bool:   
             if not app_started:
                 window['-CONTINUE-'].Update(visible=True)
@@ -52,8 +47,6 @@ def main():
                     threaded_app.stop()
                     app_started = False
     window.close()
-
-
 if __name__ == '__main__':
     main()
 

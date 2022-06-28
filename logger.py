@@ -11,6 +11,11 @@ progress=0
 class ThreadedApp():
     def __init__(self, mapValidInputValues, log_queue, queue_handler, window, interval):
         super().__init__()
+        '''
+        On calling the start method of Thread, run is auto activated. Threaded app has three responsibilities
+        1: read the script and add each item to the queue
+        2: Take from the queue and add each item into the gui
+        3: Terminate created threads, join each thread into the main thread, and reset the progress bar position'''
         self.stop_event = threading.Event()
         self.params = mapValidInputValues
         self.queue = log_queue
@@ -21,10 +26,19 @@ class ThreadedApp():
         self.run_log = ""
 
     def run(self):
+        '''
+        Run script simply reads through the mock script and adds each item into the queue,
+        This thread listens for the stop event flag, if active, will break out of the loop.
+        '''
         self.run_script = threading.Thread(target=mock_script, kwargs=(self.params), args=([self.stop_event]),name="scriptThread")
         self.run_script.start()
 
     def runLog(self):
+        '''
+        RunLog thread reads from the queue, if it is empty this method waits until something is added.
+        When an item is added to the queue this method retrieves it, adds it to the gui, and updates the progress bar.
+        This thread will be terminated upon a stop btn event, or when the progressbar has reached its max value.
+        '''
         global progress
         self.run_log = threading.Thread(target=run_logger, args=(self.queue, self.handler, self.window, self.inerval),name="loggerThread")
         self.run_log.start()
@@ -33,6 +47,10 @@ class ThreadedApp():
         return progress_stage
 
     def stop(self):
+        '''
+        Sets a flag event for the run method, flagging the thread will be terminated and allowing to break out of loop.
+        Then procedes to join the threads back into main thread, finally updating the progress bar 
+        '''
         self.stop_event.set()
         self.run_script.join()
         self.run_log.join()
@@ -60,7 +78,10 @@ def mock_script(*args, **kwargs):
 
 
 def startApp(app_started, window, interval) -> tuple:
-    # Setup logging and start app
+    '''
+    Configures connections for logger and queue, and initializes the threading app class.
+    this returns the boolean statement needed in mainthread loop.
+    '''
     logging.basicConfig(level=logging.DEBUG)
     log_queue = queue.Queue()
     queue_handler = QueueHandler(log_queue)
@@ -73,6 +94,12 @@ def startApp(app_started, window, interval) -> tuple:
         return app_started,threadedApp
 
 def run_logger(*args):
+    '''
+    Each iteration in the mainthread reads from this method.
+    Attempts to retrieve an item from the queue, update the mainwindow log key,
+    and progressbar.
+
+    '''
     log_queue, queue_handler, window, interval = args 
     global progress
     try:
