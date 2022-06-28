@@ -1,4 +1,3 @@
-import os.path
 import PySimpleGUI as sg
 from guiExtensionFunctions import *
 import serial.tools.list_ports
@@ -10,32 +9,25 @@ popAnim = b'R0lGODlhoAAYAKEAALy+vOTm5P7+/gAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQJCQAC
 
 selection = x= [str(x)[str(x).find('cu.')+3:-6] for x in list(serial.tools.list_ports.comports())]
 screen_width, screen_height= pyautogui.size()
-inputWidth = screen_width // 150
-buttonWidth = screen_width // 300
+clmnSize = (screen_width // 5, screen_height // 3)
+inputWidth = round(clmnSize[0] * .05)
+buttonWidth = round(clmnSize[0] * .02)
 input_btn_height = 1
 inputPadding = ((3, 6))
-clmnSize = (screen_width // 5, screen_height // 3)
-progress = 0 # global variable for controlling the progress bar
 screen_hight_used = screen_height - ((clmnSize[1] // 2) + (clmnSize[1] - 100))
 textboxHeight = (screen_height - screen_hight_used) // 40
-print(f"txt box height: {textboxHeight}")
-print(f"width: {screen_width}, height: {screen_height}")
-print("Btn Width " + str(buttonWidth))
-print(f"input width: {inputWidth}")
-print(f"Col size: {clmnSize}")
-print(f"Screen height used: {screen_hight_used}")
+
 col1 = [
-    [sg.Text('Serial Port')], [sg.Combo(selection, size=(
+    [sg.Text('Serial Port')], [sg.Combo(selection,default_value=selection[0],size=(
         (inputWidth + buttonWidth), input_btn_height),readonly=True, key='-SERIAL_PORT-', pad=inputPadding)],
-    [sg.Text('Host_Ip')], [sg.Input(
-        '', size=(inputWidth + buttonWidth, input_btn_height), key='-HOST_IP_INPUT-')],
+    [sg.Text('Host_Ip')], [sg.Input(size=(inputWidth + buttonWidth, input_btn_height), key='-HOST_IP_INPUT-')],
     [sg.Button('Network Settings', pad=(2, 35), key='-NETWORK_SETTINGS-')]
 ]
 col2 = [
     [sg.Text('Image Path')], [sg.Input(size=(inputWidth, input_btn_height), key='-IMAGE-'),
                               sg.FileBrowse(size=(buttonWidth, input_btn_height), pad=inputPadding)],
     [sg.Text('Embedded_src_Path')], [sg.Input(size=(inputWidth, input_btn_height),
-                                              key='-EMBEDED_SRC-'), sg.FileBrowse(size=(buttonWidth, 1))],
+                                              key='-EMBEDED_SRC-'), sg.FileBrowse(size=(buttonWidth, input_btn_height))],
 ]
 col3 = [
     [sg.Text('farmserverfillsrc')], [sg.Input(size=(inputWidth, input_btn_height),
@@ -50,11 +42,11 @@ col4 = [
                                    sg.Checkbox('', size=(buttonWidth, input_btn_height), key='-IMPORTDBBOOL-', pad=inputPadding)],
     [sg.Text('nand_src_path')], [sg.Input(size=(inputWidth, input_btn_height), key='-NAND_SRC_PATH-'),
                                  sg.FileBrowse(size=(buttonWidth, input_btn_height), pad=inputPadding)],
-    [sg.Text('dbfilesrc')], [sg.Input(size=(inputWidth, 1),
+    [sg.Text('dbfilesrc')], [sg.Input(size=(inputWidth, input_btn_height),
                                       key='-DB_FILE_SRC-'), sg.FileBrowse(size=(buttonWidth, input_btn_height))]
 ]
 col5 = [
-    [sg.Button('Save Settings', pad=((5, 170)), key='-SAVE-',)]
+    [sg.vbottom(sg.Button('Save Settings',pad=(round(clmnSize[1] * .1) , round(clmnSize[1] * .6)), key='-SAVE-'),)]
 ]
 
 row2Col1 = [
@@ -68,20 +60,18 @@ row2Col2 = [
     [sg.Text("som_desired_ip")], [sg.Input(size=(inputWidth, input_btn_height),
                                            pad=inputPadding, key='-SOM_DESIRED_IP-')],
     [sg.Text('f1_unit_prep_final_ip_config')], [sg.Combo(
-        ('DHCP', 'Static'), size=(inputWidth, input_btn_height),readonly=True, key='-F1_UNIT-', pad=inputPadding)],
+        ('DHCP', 'Static'),default_value='DHCP', size=(inputWidth, input_btn_height),readonly=True, key='-F1_UNIT-', pad=inputPadding)],
 
 ]
 row2Col3 = [
-    [sg.Text('')],
+    []
 ]
 row2Col4 = [
-    [sg.Text('')],
+    [],
 ]
 row2Col5 = [
     [sg.Button('', image_data=playBtnBase64, button_color=(sg.TRANSPARENT_BUTTON),border_width=0, image_subsample=4, key='-CONTINUE-', visible=True)],
     [sg.Button('Open Log Folder', pad=(5, 10), key='-OPEN_LOG_FOLDER-', visible=True)],
-    # Check with ori which design is better. 77, or 103
-    #[sg.Image(data=popAnim, enable_events=True, visible=False , key='-LOADING-', right_click_menu=['UNUSED', ['Exit']])]
 ]
 
 
@@ -107,7 +97,6 @@ row3 = [
     [
         sg.Text('Status Notes'),
         sg.Button('Stop', key='-STOP_LOG-',visible=False ,size=(buttonWidth, 1)),
-        # Check with ori which design is better. 77, or 103
         sg.Image(data=popAnim, enable_events=True, visible=False , key='-LOADING-', right_click_menu=['UNUSED', ['Exit']])
     ],
     [sg.Multiline(size=(round(screen_width), textboxHeight), key='-LOG-', autoscroll=True, disabled=True)]

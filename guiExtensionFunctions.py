@@ -1,4 +1,4 @@
-
+import os.path as op
 import ipaddress
 import PySimpleGUI as sg
 import os.path
@@ -23,6 +23,31 @@ mapInputs = {
         '-F1_UNIT-': 'F1_UNIT_PREP_FINAL_IP_CONFIGS',
     }
 mapValidInputValues = {}
+#-------------------ADDING DEFAULT VALUES IN DEV MODE--------------------------
+defaultPathvalues = {
+    '-IMAGE-' : 'image_5.19.0.gz',
+    '-EMBEDED_SRC-' : 'package_1.7.0.0.tar.gz',
+    '-NAND_SRC_PATH-' : 'scr-u-boot-1.0.0.0.bin',
+    '-DB_FILE-' : 'baseline_db_3.4.0.63644_new.sql',
+    "-DB_FILE_SRC-" : 'baseline_db_3.4.0.63644_new.sql',
+    '-FARMSERVER-' : 'F1-Installer-5.19.0_7.0.5.jar',
+    '-FARMSERVERF1INSTALLER-' : 'F1-Installer-5.19.0_7.0.5.jar'
+    }
+defaultValues = {
+    '-TO_RTS-' : '2560',
+    '-FROM_RTS-' : '2561',
+    '-SN-':"RG11SNSTFS000475" ,  #default==empty
+    '-HOST_IP_INPUT-': '10.4.1.1',
+    '-SOM_DESIRED_IP-' : '10.4.1.55',
+}
+def AttatchDefaultValues(window):
+    global defaultvalues
+    data_path = r"C:\Users\reine\OneDrive\Desktop\f1pygui\f1Data"
+    for key,value in defaultPathvalues.items():
+        window[key](op.join(data_path,(value + '.txt')))
+    for key, value in defaultValues.items():
+        window[key](value)
+#---------------------ADDING DEFAULT VALUES IN DEV MODE------------------------------------
 
 
 def ThrowPopUpError():
@@ -71,19 +96,22 @@ def CheckValidFilePath(values, value):
         row1Validations.append(value)
     else:
         file_exten_value = True
-        if value == '-IMAGE-' or value == "-EMBEDED_SRC-":
-            file_exten_value = validfile(path, forced_ext='.gz')
-        elif value == "-FARMSERVER-":
-            file_exten_value = validfile(path, forced_ext='.jar')
-        elif value == "-FARMSERVERF1INSTALLER-":
-            file_exten_value = validfile(path, forced_ext='.sh')
-        elif value == "-DB_FILE-" or value == "-DB_FILE_SRC-" or value == "-IMPORTDB-":
-            file_exten_value = validfile(path, forced_ext='.sql')
-            if not file_exten_value:
-                file_exten_value = validfile(path, forced_ext='.json')
-        elif value == "-NAND_SRC_PATH-":
-            file_exten_value = validfile(path, forced_ext='.bin')
-        
+        file_exten_value = validfile(path, forced_ext='.txt')
+        #ALL FILES SAVED AS TXT. IN NON DEVELOPMENT ENVIROMENT UNBLOCK COMMENTED CODE
+        #---------------------------------------------------
+        # if value == '-IMAGE-' or value == "-EMBEDED_SRC-":
+        #     file_exten_value = validfile(path, forced_ext='.gz')
+        # elif value == "-FARMSERVER-":
+        #     file_exten_value = validfile(path, forced_ext='.jar')
+        # elif value == "-FARMSERVERF1INSTALLER-":
+        #     file_exten_value = validfile(path, forced_ext='.sh')
+        # elif value == "-DB_FILE-" or value == "-DB_FILE_SRC-" or value == "-IMPORTDB-":
+        #     file_exten_value = validfile(path, forced_ext='.sql')
+        #     if not file_exten_value:
+        #         file_exten_value = validfile(path, forced_ext='.json')
+        # elif value == "-NAND_SRC_PATH-":
+        #     file_exten_value = validfile(path, forced_ext='.bin')
+        #---------------------------------------------------
         if not file_exten_value:
             row1Validations.append(value)
         else:
@@ -142,6 +170,7 @@ def validate_ip_address_row1(value, values):
         row1Validations.append(value)
 
 
+
 def HighlightIncorrectInputs(values, errors, window):
     valuesList = []
     for value in values.keys():
@@ -196,7 +225,7 @@ def ValidateAllInputs(values) -> tuple:
     global row2Validations
     global mapValidInputValues
     row2Validations.clear()
-    isValid = True #Set to true to run development without inputs
+    isValid = False #Set to true to run development without inputs
     for value in values:
         if value == "-SN-":
             Validaterow2Input(value, values)
