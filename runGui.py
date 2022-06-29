@@ -1,6 +1,6 @@
 from pysimpleguiLayout import *
 from logger import *
-
+from DefaultValues import AttatchDefaultValues, UpdateDefaultValues
 progress =0
 
 def run_logger(*args):
@@ -36,10 +36,11 @@ def main():
         window['-LOADING-'].update_animation(popAnim, time_between_frames=10)
     
         if event == "-SAVE-":
-            errors = ValidateRow1Inputs(values)
+            valid_inputs_bool, errors, valid_inputs_List = ValidateAllInputs(values,window)
             HighlightIncorrectInputs(values, errors, window)
+            UpdateDefaultValues()
         elif event == "-CONTINUE-":
-            valid_inputs_bool, errors, valid_inputs_List = ValidateAllInputs(values)
+            valid_inputs_bool, errors, valid_inputs_List = ValidateAllInputs(values,window)
             HighlightIncorrectInputs(values, errors, window)
             if valid_inputs_bool: 
                 window['-PROGRESSBAR-'](0)
@@ -48,13 +49,15 @@ def main():
                 window['-CONTINUE-'](visible=False)
                 window['-STOP_LOG-'](visible=True)
                 window['-LOADING-'](visible=True)
-                app_started, log_queue, queue_handler,threaded_app = startApp(app_started,window, interval)
+                UpdateDefaultValues()
+                app_started, log_queue, queue_handler,threaded_app = startApp(app_started)
         elif event == "-NETWORK_SETTINGS-":
             continue
         elif event == "-OPEN_LOG_FOLDER-":
             continue
         elif event == sg.WIN_CLOSED:
-            threaded_app.stop()
+            if app_started:
+                threaded_app.stop()
             break
         if valid_inputs_bool:   
             if not app_started:

@@ -8,10 +8,10 @@ from guiExtensionFunctions import mapValidInputValues
 logger = logging.getLogger('mymain')
 
 class ThreadedApp():
-    def __init__(self, mapValidInputValues, log_queue, queue_handler, window, interval):
+    def __init__(self, mapValidInputValues):
         super().__init__()
         '''
-        Threaded app has three responsibilities
+        Threaded app has two responsibilities
         1: read the script and add each item to the queue
         2: Terminate created threads, join each thread into the main thread, and reset the progress bar position
         '''
@@ -24,7 +24,7 @@ class ThreadedApp():
         Run script simply reads through the mock script and adds each item into the queue,
         This thread listens for the stop event flag, if active, will break out of the loop.
         '''
-        self.run_script = threading.Thread(target=mock_script, kwargs=(self.params), args=([self.stop_event]),name="scriptThread")
+        self.run_script = threading.Thread(target=mock_script, args=([self.stop_event], self.params),name="scriptThread")
         self.run_script.start()
 
 
@@ -47,31 +47,31 @@ class QueueHandler(logging.Handler):
         self.log_queue.put(record)
 
 # Will be replaced by the F1_test run function.
-def mock_script(*args, **kwargs):
-    stop_event = args
-    for key in kwargs:
-        txt = f'[{key}] {kwargs[key]}\n'
+def mock_script(*args):
+    stop_event, inputs = args
+    for key in inputs:
+        txt = f'[{key}] {inputs[key][0]}\n'
         logger.info(txt)
         time.sleep(1)
         if stop_event[0].is_set():
             break
 
 
-def InitializeThreadedApp(window, interval):
+def InitializeThreadedApp():
     logging.basicConfig(level=logging.DEBUG)
     log_queue = queue.Queue()
     queue_handler = QueueHandler(log_queue)
     logger.addHandler(queue_handler)
-    threaded_app = ThreadedApp(mapValidInputValues, log_queue, queue_handler, window, interval)
+    threaded_app = ThreadedApp(mapValidInputValues)
     return threaded_app, log_queue, queue_handler
 
 
-def startApp(app_started, window, interval) -> tuple:
+def startApp(app_started) -> tuple:
     '''
     Configures connections for logger and queue, and initializes the threading app class.
     This returns a boolean statement needed in mainthread loop if Threading App has started.
     '''
-    threaded_app, log_queue, queue_handler =InitializeThreadedApp(window, interval)
+    threaded_app, log_queue, queue_handler =InitializeThreadedApp()
     if not app_started:
         threaded_app.run()
         logger.debug(f'App started\n---------------------\n')

@@ -1,0 +1,51 @@
+from Framework.Utils import get_project_path
+from _overlapped import NULL
+project_path = get_project_path(__file__, root_tfs=True)
+
+############## Self Configuration ################## 
+port='com3' 
+
+debug='false'
+ 
+############## F1 PREP , FarmInit#################
+customer_ID = 712712712   #default==empty
+
+#-----------
+serial_number= "RG11SNSTFS000475"   #default==empty
+TO_RTS_PORT = '2560'
+FROM_RTS_PORT = '2561'
+
+image_path = 'image_5.19.0.gz'
+embedded_src_path = 'package_1.7.0.0.tar.gz'
+nand_src_path = 'scr-u-boot-1.0.0.0.bin'
+# PathToDBfile = 'C:/F1_Unit/Dump26062018_f1pack_2.2.1.38687_SOM.sql'
+PathToDBfile = 'baseline_db_3.4.0.63644_new.sql'
+dbfilesrc = 'baseline_db_3.4.0.63644_new.sql'
+importdatabase = False
+
+farmserverfilesrc = 'F1-Installer-5.19.0_7.0.5.jar'
+farmserverf1installersrc = 'F1_Unit/f1Installer.sh'
+
+host_ip = '10.4.1.1'
+som_desired_ip = '10.4.1.55'
+f1_unit_prep_final_ip_config = False #True DHCP, False static
+# final_ip_config = True #True DHCP, False static
+
+
+
+#Shimon to check regarding the below fields
+systemState = 'Active'
+serialNumber = NULL
+username = NULL
+password = NULL
+fromRtsPort = NULL
+toRtsPort = NULL
+rfChannel = 13
+defaultRfChannel = 13
+planCows = 'Premium'
+planHeifers = 'Premium'
+planYoungStock = 'YoungStock'
+
+farminitfile_path_som= r'/root/wildfly/standalone/configuration/farm.init.properties'
+farminitfile_path_pc= r'C:/F1_Unit/farm.init.properties'
+farminitfile_path_pc_tmp= r'C:/F1_Unit/farm_init/farm.init.properties'

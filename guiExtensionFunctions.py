@@ -1,10 +1,9 @@
-import os.path as op
 import ipaddress
 import PySimpleGUI as sg
 import os.path
 
-row1Validations = []
-row2Validations =[]
+invalid_inputs = []
+mapValidInputValues = {}
 mapInputs = {
         '-IMAGE-': 'Image Path',
         '-EMBEDED_SRC-': 'Embedded_src_Path',
@@ -12,6 +11,7 @@ mapInputs = {
         '-FARMSERVERF1INSTALLER-': 'farserverf1installersrc',
         '-DB_FILE-': 'pathtodbfile',
         "-IMPORTDB-": 'Import Database',
+        "-IMPORTDBBOOL-": "Data Import Checkbox",
         "-DB_FILE_SRC-": "Db File Source",
         '-NAND_SRC_PATH-': 'nand_src_path',
         '-SERIAL_PORT-': 'Serial Port',
@@ -20,45 +20,14 @@ mapInputs = {
         '-TO_RTS-': 'to_rts_port',
         '-FROM_RTS-': 'from_rts_port',
         '-SOM_DESIRED_IP-': 'som_desired_ip',
-        '-F1_UNIT-': 'F1_UNIT_PREP_FINAL_IP_CONFIGS',
+        '-DHCP-': 'F1_UNIT_PREP_FINAL_IP_CONFIGS',
     }
-mapValidInputValues = {}
-#-------------------ADDING DEFAULT VALUES IN DEV MODE--------------------------
-defaultPathvalues = {
-    '-IMAGE-' : 'image_5.19.0.gz',
-    '-EMBEDED_SRC-' : 'package_1.7.0.0.tar.gz',
-    '-NAND_SRC_PATH-' : 'scr-u-boot-1.0.0.0.bin',
-    '-DB_FILE-' : 'baseline_db_3.4.0.63644_new.sql',
-    "-DB_FILE_SRC-" : 'baseline_db_3.4.0.63644_new.sql',
-    '-FARMSERVER-' : 'F1-Installer-5.19.0_7.0.5.jar',
-    '-FARMSERVERF1INSTALLER-' : 'F1-Installer-5.19.0_7.0.5.jar'
-    }
-defaultValues = {
-    '-TO_RTS-' : '2560',
-    '-FROM_RTS-' : '2561',
-    '-SN-':"RG11SNSTFS000475" ,  #default==empty
-    '-HOST_IP_INPUT-': '10.4.1.1',
-    '-SOM_DESIRED_IP-' : '10.4.1.55',
-}
-def AttatchDefaultValues(window):
-    global defaultvalues
-    data_path = r"C:\Users\reine\OneDrive\Desktop\f1pygui\f1Data"
-    for key,value in defaultPathvalues.items():
-        window[key](op.join(data_path,(value + '.txt')))
-    for key, value in defaultValues.items():
-        window[key](value)
-#---------------------ADDING DEFAULT VALUES IN DEV MODE------------------------------------
 
 
 def ThrowPopUpError():
-    global row1Validations
-    global row2Validations
-    global mapInputs
     invalidMarkups = []
 
-    [invalidMarkups.append(mapInputs[x]) for x in row1Validations]
-    if len(row2Validations) > 0:
-        [invalidMarkups.append(mapInputs[x]) for x in row2Validations]
+    [invalidMarkups.append(mapInputs[x]) for x in invalid_inputs]
 
     sg.PopupError(f'Incorrect File or Files for the following Catagories!\n {printError(invalidMarkups)}')
 
@@ -82,11 +51,11 @@ def printError(errors) -> str:
 
 def CheckValidFilePath(values, value):
     path = values[value]
-    global row1Validations
+    global invalid_inputs
     global mapValidInputValues
 
     file_exten_value = True
-    file_exten_value = validfile(path, forced_ext='.txt')
+    file_exten_value = validfile(path, forced_ext='.txt') #FOR DEV PURPOSES. IN POST DEV COMMENT LINE 57 AND RETURN 61-72
     #ALL FILES SAVED AS TXT. 
     #IN NON DEVELOPMENT ENVIROMENT UNBLOCK COMMENTED CODE
     #---------------------------------------------------
@@ -104,144 +73,103 @@ def CheckValidFilePath(values, value):
     #     file_exten_value = validfile(path, forced_ext='.bin')
     #---------------------------------------------------
     if not file_exten_value:
-        row1Validations.append(value)
+        invalid_inputs.append(value)
     else:
-        mapValidInputValues[mapInputs[value]] = path
+        mapValidInputValues[mapInputs[value]] = path, value
 
-def Validaterow2Input(value, values):
-    global row2Validations
+def ValidateInput(value, values):
+    global invalid_inputs
     global mapValidInputValues
     v = values[value]
     if len(v) <= 0 or v == '':
-        row2Validations.append(value)
+        invalid_inputs.append(value)
     else:
-        mapValidInputValues[mapInputs[value]] = v
-
-
-def Validaterow1Input(value, values):
-    global row1Validations
-    global mapValidInputValues
-    v = values[value]
-    if len(v) <= 0 or v == '':
-        row1Validations.append(value)
-    else:
-        mapValidInputValues[mapInputs[value]] = v
+        mapValidInputValues[mapInputs[value]] = v, value
 
 
 def ValidatePortLength(value, values):
-    global row2Validations
+    global invalid_inputs
     global mapValidInputValues
     v = values[value]
     if len(v) != 4:
-        row2Validations.append(value)
+        invalid_inputs.append(value)
     else:
-        mapValidInputValues[mapInputs[value]] = v
+        mapValidInputValues[mapInputs[value]] = v, value
 
 
-def validate_ip_address_row2(value, values):
-    global row2Validations
+def validate_ip_address(value, values):
+    global invalid_inputs
     global mapValidInputValues
     address = values[value]
     try:
         ipaddress.ip_address(address)
-        mapValidInputValues[mapInputs[value]] = address
+        mapValidInputValues[mapInputs[value]] = address, value
     except:
-        row2Validations.append(value)
-        
-
-
-def validate_ip_address_row1(value, values):
-    global row1Validations
-    global mapValidInputValues
-    address = values[value]
-    try:
-        ipaddress.ip_address(address)
-        mapValidInputValues[mapInputs[value]] = address
-    except:
-        row1Validations.append(value)
-
+        invalid_inputs.append(value)
 
 
 def HighlightIncorrectInputs(values, errors, window):
     valuesList = []
+    global invalid_inputs
     for value in values.keys():
         if 'BROWSE' in value.upper():
             pass
         else:
             valuesList.append(value)
-    if len(valuesList) > 0:
-        valuesList.sort()
-        
-    for error in errors:
-        if not error == "-SERIAL_PORT-" and not error == "-F1_UNIT-" and not error == '-IMPORTDBBOOL-':
-            window[f'{error}'].Update(background_color = "red")
-        if error in valuesList:
-            valuesList.remove(error)
-    for value in valuesList:
-        if not value == "-SERIAL_PORT-" and not value == "-F1_UNIT-" and not value == '-IMPORTDBBOOL-':
-            window[f'{value}'].Update(background_color = "white")
+    valuesList.sort()
+    if len(invalid_inputs) > 0:
+        for error in invalid_inputs:
+            if not invalid_inputs == "-SERIAL_PORT-" and not invalid_inputs == "-DHCP-" and not invalid_inputs == '-IMPORTDBBOOL-':
+                window[f'{error}'](background_color = "red")
 
-#---------------row one elements for validation-------------------------
-def ValidateRow1Inputs(values) -> list:
-    global row1Validations
-    row1Validations.clear()
-    '''Returns list of invalid inputs from window'''
-    for value in values:
-        if 'BROWSE' in value.upper():
-            pass
-        else:
-            if value == "-SERIAL_PORT-":
-                Validaterow1Input(value, values)
-            elif value == "-HOST_IP_INPUT-":
-                validate_ip_address_row1(value, values)
-
-            elif (value == "-IMAGE-" or value == "-EMBEDED_SRC-" or 
-                    value == "-FARMSERVER-" or value == "-FARMSERVERF1INSTALLER-" or
-                    value == "-DB_FILE-" or value == "-NAND_SRC_PATH-" or value == "-DB_FILE_SRC-"):
-                
-                CheckValidFilePath(values, value)
-
-            elif value == "-IMPORTDBBOOL-":
-                if values[value]:
-                    value = "-IMPORTDB-"
-                    CheckValidFilePath(values, value)
-    if len(row1Validations) > 0:
+            if error in valuesList:
+                valuesList.remove(error)
         ThrowPopUpError()
-    
-    return row1Validations
-#---------------row two elements for validation-------------------------]
-def ValidateAllInputs(values) -> tuple:
+
+    for value in valuesList:
+        if not value == "-SERIAL_PORT-" and not value == "-DHCP-" and not value == '-IMPORTDBBOOL-':
+            window[f'{value}'](background_color = "white")
+
+
+def ValidateAllInputs(values,window) -> tuple:
     '''
-    returns a tuple, first value being a boolean statement,
-    second a list of invalid input elements,
-    and lastly a list of correct input items'''
-    global row2Validations
-    global row1Validations
+    returns a boolean statement, a list of invalid input elements,
+    and  a list of valid input elements'''
+    global invalid_inputs
     global mapValidInputValues
-    row2Validations.clear()
+    invalid_inputs.clear()
     isValid = False #Set to true to run development without inputs
     for value in values:
-        if value == "-SN-":
-            Validaterow2Input(value, values)
+        if value == "-SN-" or value == "-SERIAL_PORT-":
+            ValidateInput(value, values)
         elif value == "-TO_RTS-" or value == '-FROM_RTS-':
             ValidatePortLength(value, values)
-        elif value == "-SOM_DESIRED_IP-":
-            validate_ip_address_row2(value, values)
-        elif value == '-F1_UNIT-':
+        elif value == "-SOM_DESIRED_IP-" or  value == "-HOST_IP_INPUT-":
+            validate_ip_address(value, values)
+        elif value == '-DHCP-':
             v = values[value]
             if v == 'Static':
-                mapValidInputValues[mapInputs[value]] = v
-                DHCP = False #not returning bool value anywhere but input value of static and dhcp returned
+                mapValidInputValues[mapInputs[value]] = v, value
             elif v == 'DHCP':
-                mapValidInputValues[mapInputs[value]] = v
-                DHCP = True
+                mapValidInputValues[mapInputs[value]] = v, value
             else:
-                row2Validations.append(value)
-    row1Validations = ValidateRow1Inputs(values)
-    errors = row1Validations + row2Validations
+                invalid_inputs.append(value)
+        elif (value == "-IMAGE-" or value == "-EMBEDED_SRC-" or 
+                value == "-FARMSERVER-" or value == "-FARMSERVERF1INSTALLER-" or
+                value == "-DB_FILE-" or value == "-NAND_SRC_PATH-" or value == "-DB_FILE_SRC-"):
+            
+            CheckValidFilePath(values, value)
+        elif value == "-IMPORTDBBOOL-":
+            db_bool = values[value]
+            if db_bool:
+                mapValidInputValues[mapInputs[value]] = db_bool, value
+                value = "-IMPORTDB-"
+                CheckValidFilePath(values, value)
+            else:
+                mapValidInputValues[mapInputs[value]],mapValidInputValues[mapInputs["-IMPORTDB-"]] = (db_bool, value), ("", value)
 
-    if len(errors) == 0:
+    if len(invalid_inputs) == 0:
         isValid = True
-    return isValid, errors, mapValidInputValues.keys()
+    return isValid, invalid_inputs, mapValidInputValues.keys()
 
 

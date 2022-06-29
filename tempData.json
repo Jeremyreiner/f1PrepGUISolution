@@ -1,0 +1,66 @@
+{
+ "Serial Port": [
+  "M6 - Standard Serial over Bluetooth link ",
+  "-SERIAL_PORT-"
+ ],
+ "Host_Ip": [
+  "10.4.10.20",
+  "-HOST_IP_INPUT-"
+ ],
+ "Image Path": [
+  "C:\\Users\\reine\\OneDrive\\Desktop\\f1pygui\\f1Data\\image_5.19.0.gz.txt",
+  "-IMAGE-"
+ ],
+ "Embedded_src_Path": [
+  "C:\\Users\\reine\\OneDrive\\Desktop\\f1pygui\\f1Data\\package_1.7.0.0.tar.gz.txt",
+  "-EMBEDED_SRC-"
+ ],
+ "farmserverfillsrc": [
+  "C:\\Users\\reine\\OneDrive\\Desktop\\f1pygui\\f1Data\\F1-Installer-5.19.0_7.0.5.jar.txt",
+  "-FARMSERVER-"
+ ],
+ "farserverf1installersrc": [
+  "C:\\Users\\reine\\OneDrive\\Desktop\\f1pygui\\f1Data\\F1-Installer-5.19.0_7.0.5.jar.txt",
+  "-FARMSERVERF1INSTALLER-"
+ ],
+ "pathtodbfile": [
+  "C:\\Users\\reine\\OneDrive\\Desktop\\f1pygui\\f1Data\\F1-Installer-5.19.0_7.0.5.jar.txt",
+  "-DB_FILE-"
+ ],
+ "Data Import Checkbox": [
+  false,
+  "-IMPORTDBBOOL-"
+ ],
+ "Import Database": [
+  "",
+  "-IMPORTDBBOOL-"
+ ],
+ "nand_src_path": [
+  "C:\\Users\\reine\\OneDrive\\Desktop\\f1pygui\\f1Data\\scr-u-boot-1.0.0.0.bin.txt",
+  "-NAND_SRC_PATH-"
+ ],
+ "Db File Source": [
+  "C:\\Users\\reine\\OneDrive\\Desktop\\f1pygui\\f1Data\\F1-Installer-5.19.0_7.0.5.jar.txt",
+  "-DB_FILE_SRC-"
+ ],
+ "Serial Number": [
+  "KDKG102344",
+  "-SN-"
+ ],
+ "to_rts_port": [
+  "5992",
+  "-TO_RTS-"
+ ],
+ "from_rts_port": [
+  "2222",
+  "-FROM_RTS-"
+ ],
+ "som_desired_ip": [
+  "10.2.10.7",
+  "-SOM_DESIRED_IP-"
+ ],
+ "F1_UNIT_PREP_FINAL_IP_CONFIGS": [
+  "Static",
+  "-DHCP-"
+ ]
+}

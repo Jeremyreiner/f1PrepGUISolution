@@ -60,7 +60,7 @@ row2Col2 = [
     [sg.Text("som_desired_ip")], [sg.Input(size=(inputWidth, input_btn_height),
                                            pad=inputPadding, key='-SOM_DESIRED_IP-')],
     [sg.Text('f1_unit_prep_final_ip_config')], [sg.Combo(
-        ('DHCP', 'Static'),default_value='DHCP', size=(inputWidth, input_btn_height),readonly=True, key='-F1_UNIT-', pad=inputPadding)],
+        ('DHCP', 'Static'),default_value='DHCP', size=(inputWidth, input_btn_height),readonly=True, key='-DHCP-', pad=inputPadding)],
 
 ]
 row2Col3 = [
