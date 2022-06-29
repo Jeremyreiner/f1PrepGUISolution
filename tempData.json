@@ -4,7 +4,7 @@
   "-SERIAL_PORT-"
  ],
  "Host_Ip": [
-  "10.4.10.20",
+  "10.2.10.4",
   "-HOST_IP_INPUT-"
  ],
  "Image Path": [
@@ -31,10 +31,6 @@
   false,
   "-IMPORTDBBOOL-"
  ],
- "Import Database": [
-  "",
-  "-IMPORTDBBOOL-"
- ],
  "nand_src_path": [
   "C:\\Users\\reine\\OneDrive\\Desktop\\f1pygui\\f1Data\\scr-u-boot-1.0.0.0.bin.txt",
   "-NAND_SRC_PATH-"
@@ -43,24 +39,28 @@
   "C:\\Users\\reine\\OneDrive\\Desktop\\f1pygui\\f1Data\\F1-Installer-5.19.0_7.0.5.jar.txt",
   "-DB_FILE_SRC-"
  ],
- "Serial Number": [
-  "KDKG102344",
-  "-SN-"
- ],
  "to_rts_port": [
-  "5992",
+  "4444",
   "-TO_RTS-"
  ],
  "from_rts_port": [
   "2222",
   "-FROM_RTS-"
  ],
- "som_desired_ip": [
-  "10.2.10.7",
-  "-SOM_DESIRED_IP-"
- ],
  "F1_UNIT_PREP_FINAL_IP_CONFIGS": [
   "Static",
   "-DHCP-"
+ ],
+ "Import Database": [
+  "",
+  "-IMPORTDBBOOL-"
+ ],
+ "Serial Number": [
+  "34f3f1",
+  "-SN-"
+ ],
+ "som_desired_ip": [
+  "10.2.10.4",
+  "-SOM_DESIRED_IP-"
  ]
 }

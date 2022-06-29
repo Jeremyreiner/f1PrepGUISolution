@@ -3,6 +3,7 @@ import PySimpleGUI as sg
 import os.path
 
 invalid_inputs = []
+red_inputs = []
 mapValidInputValues = {}
 mapInputs = {
         '-IMAGE-': 'Image Path',
@@ -24,14 +25,6 @@ mapInputs = {
     }
 
 
-def ThrowPopUpError():
-    invalidMarkups = []
-
-    [invalidMarkups.append(mapInputs[x]) for x in invalid_inputs]
-
-    sg.PopupError(f'Incorrect File or Files for the following Catagories!\n {printError(invalidMarkups)}')
-
-
 def validfile(path, forced_ext='') -> bool:
     if not os.path.exists(path): 
         return False
@@ -45,7 +38,7 @@ def validfile(path, forced_ext='') -> bool:
 def printError(errors) -> str:
     str = ''
     for error in errors:
-        str += f"\n- {error}"
+        str += f"\n- {mapInputs[error]}"
     return str
 
 
@@ -107,28 +100,20 @@ def validate_ip_address(value, values):
     except:
         invalid_inputs.append(value)
 
+def FixHighlightedInputs(window):
+    global red_inputs
+    if len(red_inputs) > 0:
+        for value in red_inputs:
+            if not value == "-SERIAL_PORT-" and not value == "-DHCP-" and not value == '-IMPORTDBBOOL-':
+                window[f'{value}'](background_color = "white")
 
-def HighlightIncorrectInputs(values, errors, window):
-    valuesList = []
-    global invalid_inputs
-    for value in values.keys():
-        if 'BROWSE' in value.upper():
-            pass
-        else:
-            valuesList.append(value)
-    valuesList.sort()
+def HighlightIncorrectInputs(window):
     if len(invalid_inputs) > 0:
         for error in invalid_inputs:
             if not invalid_inputs == "-SERIAL_PORT-" and not invalid_inputs == "-DHCP-" and not invalid_inputs == '-IMPORTDBBOOL-':
                 window[f'{error}'](background_color = "red")
-
-            if error in valuesList:
-                valuesList.remove(error)
-        ThrowPopUpError()
-
-    for value in valuesList:
-        if not value == "-SERIAL_PORT-" and not value == "-DHCP-" and not value == '-IMPORTDBBOOL-':
-            window[f'{value}'](background_color = "white")
+                red_inputs.append(error)
+        sg.PopupError(f'Incorrect File or Files for the following Catagories!\n {printError(invalid_inputs)}')
 
 
 def ValidateAllInputs(values,window) -> tuple:
@@ -138,7 +123,7 @@ def ValidateAllInputs(values,window) -> tuple:
     global invalid_inputs
     global mapValidInputValues
     invalid_inputs.clear()
-    isValid = False #Set to true to run development without inputs
+    isValid = False #Set true to run development without inputs
     for value in values:
         if value == "-SN-" or value == "-SERIAL_PORT-":
             ValidateInput(value, values)
@@ -167,9 +152,12 @@ def ValidateAllInputs(values,window) -> tuple:
                 CheckValidFilePath(values, value)
             else:
                 mapValidInputValues[mapInputs[value]],mapValidInputValues[mapInputs["-IMPORTDB-"]] = (db_bool, value), ("", value)
-
     if len(invalid_inputs) == 0:
         isValid = True
-    return isValid, invalid_inputs, mapValidInputValues.keys()
+        FixHighlightedInputs(window)
+    else:
+        HighlightIncorrectInputs(window)
+
+    return isValid, mapValidInputValues.keys()
 
 

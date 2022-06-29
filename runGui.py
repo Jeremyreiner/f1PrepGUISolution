@@ -36,12 +36,10 @@ def main():
         window['-LOADING-'].update_animation(popAnim, time_between_frames=10)
     
         if event == "-SAVE-":
-            valid_inputs_bool, errors, valid_inputs_List = ValidateAllInputs(values,window)
-            HighlightIncorrectInputs(values, errors, window)
+            valid_inputs_bool, valid_inputs_List = ValidateAllInputs(values,window)
             UpdateDefaultValues()
         elif event == "-CONTINUE-":
-            valid_inputs_bool, errors, valid_inputs_List = ValidateAllInputs(values,window)
-            HighlightIncorrectInputs(values, errors, window)
+            valid_inputs_bool, valid_inputs_List = ValidateAllInputs(values,window)
             if valid_inputs_bool: 
                 window['-PROGRESSBAR-'](0)
                 interval = 100 / len(valid_inputs_List)
