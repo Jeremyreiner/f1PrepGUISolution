@@ -1,18 +1,36 @@
 from pysimpleguiLayout import *
 from logger import *
 
-progress
+progress =0
+
+def run_logger(*args):
+    '''
+    Each iteration in the mainthread reads from this method.
+    Attempts to retrieve an item from the queue, update the mainwindow log key,
+    and progressbar.
+    '''
+    log_queue, queue_handler,window, interval = args 
+    global progress
+
+    try:
+        record = log_queue.get(block=False)
+        msg = queue_handler.format(record)
+        window['-LOG-'](msg+'\n', append=True)
+        progress += interval
+        if msg != 'App started\n---------------------\n':
+            window['-PROGRESSBAR-'](progress)
+    except queue.Empty:
+        pass
+    return progress
+
 
 def main():
     window = Make_Win1()
     window.Maximize()
-    valid_inputs_bool = False
-    app_started = False
-    progress_bar = window['-PROGRESSBAR-']
-    interval = 0
-    progress = 0
+    valid_inputs_bool,app_started = False,False
     AttatchDefaultValues(window)
-    # Run a while loop for continuios iterations Event Loop
+    global progress
+
     while True:
         event, values = window.read(timeout=100)
         window['-LOADING-'].update_animation(popAnim, time_between_frames=10)
@@ -20,42 +38,34 @@ def main():
         if event == "-SAVE-":
             errors = ValidateRow1Inputs(values)
             HighlightIncorrectInputs(values, errors, window)
-
         elif event == "-CONTINUE-":
             valid_inputs_bool, errors, valid_inputs_List = ValidateAllInputs(values)
             HighlightIncorrectInputs(values, errors, window)
             if valid_inputs_bool: 
-                progress_bar.update(0)
+                window['-PROGRESSBAR-'](0)
                 interval = 100 / len(valid_inputs_List)
-                window['-LOG-'].update('')
-                window['-CONTINUE-'].Update(visible=False)
-                window['-STOP_LOG-'].Update(visible=True)
-                window['-LOADING-'].Update(visible=True)
-                app_started,threaded_app = startApp(app_started,window, interval)
-
+                window['-LOG-']('')
+                window['-CONTINUE-'](visible=False)
+                window['-STOP_LOG-'](visible=True)
+                window['-LOADING-'](visible=True)
+                app_started, log_queue, queue_handler,threaded_app = startApp(app_started,window, interval)
         elif event == "-NETWORK_SETTINGS-":
             continue
-
         elif event == "-OPEN_LOG_FOLDER-":
             continue
         elif event == sg.WIN_CLOSED:
             break
-
         if valid_inputs_bool:   
             if not app_started:
-                window['-CONTINUE-'].Update(visible=True)
-                window['-STOP_LOG-'].Update(visible=False)
-                window['-LOADING-'].Update(visible=False)
+                window['-CONTINUE-'](visible=True)
+                window['-STOP_LOG-'](visible=False)
+                window['-LOADING-'](visible=False)
             else:
-                progress = threaded_app.runLog()
+                progress = run_logger(log_queue, queue_handler,window, interval)
                 if event == "-STOP_LOG-" or progress >= 99:
-                    threaded_app.stop()
-                    app_started = False
+                    app_started = threaded_app.stop()
+                    progress = 0
     window.close()
-
 
 if __name__ == '__main__':
     main()
-
-
-

@@ -60,7 +60,7 @@ def ThrowPopUpError():
     if len(row2Validations) > 0:
         [invalidMarkups.append(mapInputs[x]) for x in row2Validations]
 
-    sg.PopupError(f'Incorrect INPUT file / files for the following Catagories!\n {printError(invalidMarkups)}')
+    sg.PopupError(f'Incorrect File or Files for the following Catagories!\n {printError(invalidMarkups)}')
 
 
 def validfile(path, forced_ext='') -> bool:
@@ -85,37 +85,28 @@ def CheckValidFilePath(values, value):
     global row1Validations
     global mapValidInputValues
 
-    if type(path) == bool:
-        row1Validations.append(value)
-    elif len(path) == 0 or path == '':
-        row1Validations.append(value)
-    elif os.path.isdir(path):
-        row1Validations.append(value)
-
-    elif not os.path.exists(path): 
+    file_exten_value = True
+    file_exten_value = validfile(path, forced_ext='.txt')
+    #ALL FILES SAVED AS TXT. 
+    #IN NON DEVELOPMENT ENVIROMENT UNBLOCK COMMENTED CODE
+    #---------------------------------------------------
+    # if value == '-IMAGE-' or value == "-EMBEDED_SRC-":
+    #     file_exten_value = validfile(path, forced_ext='.gz')
+    # elif value == "-FARMSERVER-":
+    #     file_exten_value = validfile(path, forced_ext='.jar')
+    # elif value == "-FARMSERVERF1INSTALLER-":
+    #     file_exten_value = validfile(path, forced_ext='.sh')
+    # elif value == "-DB_FILE-" or value == "-DB_FILE_SRC-" or value == "-IMPORTDB-":
+    #     file_exten_value = validfile(path, forced_ext='.sql')
+    #     if not file_exten_value:
+    #         file_exten_value = validfile(path, forced_ext='.json')
+    # elif value == "-NAND_SRC_PATH-":
+    #     file_exten_value = validfile(path, forced_ext='.bin')
+    #---------------------------------------------------
+    if not file_exten_value:
         row1Validations.append(value)
     else:
-        file_exten_value = True
-        file_exten_value = validfile(path, forced_ext='.txt')
-        #ALL FILES SAVED AS TXT. IN NON DEVELOPMENT ENVIROMENT UNBLOCK COMMENTED CODE
-        #---------------------------------------------------
-        # if value == '-IMAGE-' or value == "-EMBEDED_SRC-":
-        #     file_exten_value = validfile(path, forced_ext='.gz')
-        # elif value == "-FARMSERVER-":
-        #     file_exten_value = validfile(path, forced_ext='.jar')
-        # elif value == "-FARMSERVERF1INSTALLER-":
-        #     file_exten_value = validfile(path, forced_ext='.sh')
-        # elif value == "-DB_FILE-" or value == "-DB_FILE_SRC-" or value == "-IMPORTDB-":
-        #     file_exten_value = validfile(path, forced_ext='.sql')
-        #     if not file_exten_value:
-        #         file_exten_value = validfile(path, forced_ext='.json')
-        # elif value == "-NAND_SRC_PATH-":
-        #     file_exten_value = validfile(path, forced_ext='.bin')
-        #---------------------------------------------------
-        if not file_exten_value:
-            row1Validations.append(value)
-        else:
-            mapValidInputValues[mapInputs[value]] = path
+        mapValidInputValues[mapInputs[value]] = path
 
 def Validaterow2Input(value, values):
     global row2Validations
@@ -221,7 +212,10 @@ def ValidateRow1Inputs(values) -> list:
     return row1Validations
 #---------------row two elements for validation-------------------------]
 def ValidateAllInputs(values) -> tuple:
-    '''returns a tuple, first value being a boolean statement, and the second a list of invalid input elements'''
+    '''
+    returns a tuple, first value being a boolean statement,
+    second a list of invalid input elements,
+    and lastly a list of correct input items'''
     global row2Validations
     global mapValidInputValues
     row2Validations.clear()
