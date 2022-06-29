@@ -54,6 +54,7 @@ def main():
         elif event == "-OPEN_LOG_FOLDER-":
             continue
         elif event == sg.WIN_CLOSED:
+            threaded_app.stop()
             break
         if valid_inputs_bool:   
             if not app_started:

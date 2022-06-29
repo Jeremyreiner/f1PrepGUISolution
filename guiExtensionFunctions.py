@@ -201,11 +201,10 @@ def ValidateRow1Inputs(values) -> list:
                 
                 CheckValidFilePath(values, value)
 
-            else:
-                if value == "-IMPORTDBBOOL-":
-                    if values[value]:
-                        value = "-IMPORTDB-"
-                        CheckValidFilePath(values, value)
+            elif value == "-IMPORTDBBOOL-":
+                if values[value]:
+                    value = "-IMPORTDB-"
+                    CheckValidFilePath(values, value)
     if len(row1Validations) > 0:
         ThrowPopUpError()
     
@@ -217,6 +216,7 @@ def ValidateAllInputs(values) -> tuple:
     second a list of invalid input elements,
     and lastly a list of correct input items'''
     global row2Validations
+    global row1Validations
     global mapValidInputValues
     row2Validations.clear()
     isValid = False #Set to true to run development without inputs
