@@ -50,7 +50,7 @@ class QueueHandler(logging.Handler):
 def mock_script(*args):
     stop_event, inputs = args
     for key in inputs:
-        txt = f'[{key}] {inputs[key][0]}\n'
+        txt = f'[{key}] {inputs[key]}\n'
         logger.info(txt)
         time.sleep(1)
         if stop_event[0].is_set():

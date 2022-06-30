@@ -16,7 +16,7 @@ input_btn_height = 1
 inputPadding = ((3, 6))
 screen_hight_used = screen_height - ((clmnSize[1] // 2) + (clmnSize[1] - 100))
 textboxHeight = (screen_height - screen_hight_used) // 40
-
+print(screen_width)
 col1 = [
     [sg.Text('Serial Port')], [sg.Combo(selection,default_value=selection[0],size=(
         (inputWidth + buttonWidth), input_btn_height),readonly=True, key='-SERIAL_PORT-', pad=inputPadding)],
@@ -38,8 +38,7 @@ col3 = [
                                          key='-DB_FILE-'), sg.FileBrowse(size=(buttonWidth, input_btn_height))]
 ]
 col4 = [
-    [sg.Text('import database')], [sg.Input(size=(inputWidth, input_btn_height), key='-IMPORTDB-'),
-                                   sg.Checkbox('', size=(buttonWidth, input_btn_height), key='-IMPORTDBBOOL-', pad=inputPadding)],
+    [sg.Checkbox('', key='-IMPORTDBBOOL-'),sg.Text('import database',size=(inputWidth, input_btn_height))],
     [sg.Text('nand_src_path')], [sg.Input(size=(inputWidth, input_btn_height), key='-NAND_SRC_PATH-'),
                                  sg.FileBrowse(size=(buttonWidth, input_btn_height), pad=inputPadding)],
     [sg.Text('dbfilesrc')], [sg.Input(size=(inputWidth, input_btn_height),
@@ -63,15 +62,12 @@ row2Col2 = [
         ('DHCP', 'Static'),default_value='DHCP', size=(inputWidth, input_btn_height),readonly=True, key='-DHCP-', pad=inputPadding)],
 
 ]
-row2Col3 = [
-    []
-]
-row2Col4 = [
-    [],
-]
+row2Col3 = [[]]
+row2Col4 = [[]]
 row2Col5 = [
     [sg.Button('', image_data=playBtnBase64, button_color=(sg.TRANSPARENT_BUTTON),border_width=0, image_subsample=4, key='-CONTINUE-', visible=True)],
-    [sg.Button('Open Log Folder', pad=(5, 10), key='-OPEN_LOG_FOLDER-', visible=True)],
+    [sg.Button('Open Log Folder', pad=(0, 0), key='-OPEN_LOG_FOLDER-', visible=True)],
+    [sg.Button('Stop', key='-STOP_LOG-',pad=(15,0),visible=False ,size=(buttonWidth, 1))]
 ]
 
 
@@ -87,29 +83,27 @@ row1 = [[
              ]])
 ]]
 row2 = [[
-        sg.Col(row2Col1, p=0, size=((clmnSize[0]), (clmnSize[1] // 2))), sg.Col(
-            row2Col2, p=0, size=((clmnSize[0]), (clmnSize[1] // 2))),
-        sg.Col(row2Col3, p=0, size=((clmnSize[0]), (clmnSize[1] // 2))), sg.Col(
-            row2Col4, p=0, size=((clmnSize[0]), (clmnSize[1] // 2))),
-        sg.Col(row2Col5, p=0, size=((clmnSize[0]), (clmnSize[1] // 2)), pad=(50)),
+        sg.Col(row2Col1, p=0, size=((clmnSize[0]), (clmnSize[1] -100))), sg.Col(
+            row2Col2, p=0, size=((clmnSize[0]), (clmnSize[1] -100))),
+        sg.Col(row2Col3, p=0, size=((clmnSize[0]), (clmnSize[1] -100))), sg.Col(
+            row2Col4, p=0, size=((clmnSize[0]), (clmnSize[1] -100))),
+        sg.Col(row2Col5, p=0, size=((clmnSize[0]), (clmnSize[1] -100)), pad=(50)),
         ]]
 row3 = [
     [
         sg.Text('Status Notes'),
-        sg.Button('Stop', key='-STOP_LOG-',visible=False ,size=(buttonWidth, 1)),
-        sg.Image(data=popAnim, enable_events=True, visible=False , key='-LOADING-', right_click_menu=['UNUSED', ['Exit']])
+        # sg.Button('Stop', key='-STOP_LOG-',visible=False ,size=(buttonWidth, 1)),
+        sg.Image(data=popAnim, enable_events=True, visible=False ,pad=((screen_width *.78,0), 0), key='-LOADING-', right_click_menu=['UNUSED', ['Exit']]),
     ],
-    [sg.Multiline(size=(round(screen_width), textboxHeight), key='-LOG-', autoscroll=True, disabled=True)]
-]
-# -------ROW DESIGN INSIDE OF window1----------------
-ProgressBarAtFoot = [
+    [sg.Multiline(size=(round(screen_width), textboxHeight), key='-LOG-', autoscroll=True, disabled=True)],
     [sg.ProgressBar(100, orientation='h', size=(round(screen_width), (round(screen_height / 20))), key='-PROGRESSBAR-')],
 ]
+# -------ROW DESIGN INSIDE OF window1----------------
 
 def Make_Win1():
     layout = [
         [
-            [row1, row2, row3, ProgressBarAtFoot]
+            [row1, row2, row3]
         ]
     ]
     return sg.Window("Dialog Title", layout, finalize=True)

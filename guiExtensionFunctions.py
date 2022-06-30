@@ -1,17 +1,17 @@
+from ast import Not
 import ipaddress
 import PySimpleGUI as sg
 import os.path
 
 invalid_inputs = []
-red_inputs = []
+red_inputs = set()
 mapValidInputValues = {}
-mapInputs = {
+map_inputs = {
         '-IMAGE-': 'Image Path',
         '-EMBEDED_SRC-': 'Embedded_src_Path',
         '-FARMSERVER-': 'farmserverfillsrc',
         '-FARMSERVERF1INSTALLER-': 'farserverf1installersrc',
         '-DB_FILE-': 'pathtodbfile',
-        "-IMPORTDB-": 'Import Database',
         "-IMPORTDBBOOL-": "Data Import Checkbox",
         "-DB_FILE_SRC-": "Db File Source",
         '-NAND_SRC_PATH-': 'nand_src_path',
@@ -23,6 +23,14 @@ mapInputs = {
         '-SOM_DESIRED_IP-': 'som_desired_ip',
         '-DHCP-': 'F1_UNIT_PREP_FINAL_IP_CONFIGS',
     }
+
+
+def JsonToGuiKeys(key):
+    if key in map_inputs.values():
+        for k,v in map_inputs.items():
+            if v == key:
+                return k
+    
 
 
 def validfile(path, forced_ext='') -> bool:
@@ -38,7 +46,7 @@ def validfile(path, forced_ext='') -> bool:
 def printError(errors) -> str:
     str = ''
     for error in errors:
-        str += f"\n- {mapInputs[error]}"
+        str += f"\n- {map_inputs[error]}"
     return str
 
 
@@ -58,7 +66,7 @@ def CheckValidFilePath(values, value):
     #     file_exten_value = validfile(path, forced_ext='.jar')
     # elif value == "-FARMSERVERF1INSTALLER-":
     #     file_exten_value = validfile(path, forced_ext='.sh')
-    # elif value == "-DB_FILE-" or value == "-DB_FILE_SRC-" or value == "-IMPORTDB-":
+    # elif value == "-DB_FILE-" or value == "-DB_FILE_SRC-":
     #     file_exten_value = validfile(path, forced_ext='.sql')
     #     if not file_exten_value:
     #         file_exten_value = validfile(path, forced_ext='.json')
@@ -68,7 +76,8 @@ def CheckValidFilePath(values, value):
     if not file_exten_value:
         invalid_inputs.append(value)
     else:
-        mapValidInputValues[mapInputs[value]] = path, value
+        mapValidInputValues[map_inputs[value]] = path
+
 
 def ValidateInput(value, values):
     global invalid_inputs
@@ -77,17 +86,17 @@ def ValidateInput(value, values):
     if len(v) <= 0 or v == '':
         invalid_inputs.append(value)
     else:
-        mapValidInputValues[mapInputs[value]] = v, value
+        mapValidInputValues[map_inputs[value]] = v
 
 
 def ValidatePortLength(value, values):
     global invalid_inputs
     global mapValidInputValues
     v = values[value]
-    if len(v) != 4:
+    if v=="" or int(v) < 1000 or int(v) > 6500:
         invalid_inputs.append(value)
     else:
-        mapValidInputValues[mapInputs[value]] = v, value
+        mapValidInputValues[map_inputs[value]] = v
 
 
 def validate_ip_address(value, values):
@@ -96,7 +105,7 @@ def validate_ip_address(value, values):
     address = values[value]
     try:
         ipaddress.ip_address(address)
-        mapValidInputValues[mapInputs[value]] = address, value
+        mapValidInputValues[map_inputs[value]] = address
     except:
         invalid_inputs.append(value)
 
@@ -104,16 +113,29 @@ def FixHighlightedInputs(window):
     global red_inputs
     if len(red_inputs) > 0:
         for value in red_inputs:
-            if not value == "-SERIAL_PORT-" and not value == "-DHCP-" and not value == '-IMPORTDBBOOL-':
+            if value not in invalid_inputs:
                 window[f'{value}'](background_color = "white")
+            
+
 
 def HighlightIncorrectInputs(window):
+    flag = False
     if len(invalid_inputs) > 0:
         for error in invalid_inputs:
-            if not invalid_inputs == "-SERIAL_PORT-" and not invalid_inputs == "-DHCP-" and not invalid_inputs == '-IMPORTDBBOOL-':
+            if not error == "-SERIAL_PORT-" and not error == "-DHCP-" and not error == '-IMPORTDBBOOL-':
                 window[f'{error}'](background_color = "red")
-                red_inputs.append(error)
-        sg.PopupError(f'Incorrect File or Files for the following Catagories!\n {printError(invalid_inputs)}')
+                red_inputs.add(error)
+        for error in invalid_inputs:
+            if not (error == "-SN-" or error == "-TO_RTS-" or
+                    error == "-FROM_RTS-" or error == "-DHCP-"
+                    or error == "-SOM_DESIRED_IP-"):
+                    flag = True
+                    break
+    input = "INPUTS" if len(invalid_inputs) > 1 else "INPUT"
+    if flag:
+        sg.PopupError(f'INCORRECT/ MISSING {input} IN THE FOLLOWING CATAGORIES!\n {printError(invalid_inputs)}')
+    else:
+        sg.PopupError(f'SETTINGS HAVE BEEN SAVED, TO RUN THE PROGRAM THE FOLLOWING {input} MUST BE CORRECTED\n {printError(invalid_inputs)}')
 
 
 def ValidateAllInputs(values,window) -> tuple:
@@ -125,7 +147,7 @@ def ValidateAllInputs(values,window) -> tuple:
     invalid_inputs.clear()
     isValid = False #Set true to run development without inputs
     for value in values:
-        if value == "-SN-" or value == "-SERIAL_PORT-":
+        if value == "-SN-":
             ValidateInput(value, values)
         elif value == "-TO_RTS-" or value == '-FROM_RTS-':
             ValidatePortLength(value, values)
@@ -134,9 +156,9 @@ def ValidateAllInputs(values,window) -> tuple:
         elif value == '-DHCP-':
             v = values[value]
             if v == 'Static':
-                mapValidInputValues[mapInputs[value]] = v, value
+                mapValidInputValues[map_inputs[value]] = v
             elif v == 'DHCP':
-                mapValidInputValues[mapInputs[value]] = v, value
+                mapValidInputValues[map_inputs[value]] = v
             else:
                 invalid_inputs.append(value)
         elif (value == "-IMAGE-" or value == "-EMBEDED_SRC-" or 
@@ -147,16 +169,14 @@ def ValidateAllInputs(values,window) -> tuple:
         elif value == "-IMPORTDBBOOL-":
             db_bool = values[value]
             if db_bool:
-                mapValidInputValues[mapInputs[value]] = db_bool, value
-                value = "-IMPORTDB-"
-                CheckValidFilePath(values, value)
+                mapValidInputValues[map_inputs[value]] = db_bool
             else:
-                mapValidInputValues[mapInputs[value]],mapValidInputValues[mapInputs["-IMPORTDB-"]] = (db_bool, value), ("", value)
+                mapValidInputValues[map_inputs[value]] = db_bool
     if len(invalid_inputs) == 0:
         isValid = True
-        FixHighlightedInputs(window)
     else:
         HighlightIncorrectInputs(window)
+    FixHighlightedInputs(window)
 
     return isValid, mapValidInputValues.keys()
 

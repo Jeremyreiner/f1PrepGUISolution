@@ -1,66 +1,16 @@
 {
- "Serial Port": [
-  "M6 - Standard Serial over Bluetooth link ",
-  "-SERIAL_PORT-"
- ],
- "Host_Ip": [
-  "10.2.10.4",
-  "-HOST_IP_INPUT-"
- ],
- "Image Path": [
-  "C:\\Users\\reine\\OneDrive\\Desktop\\f1pygui\\f1Data\\image_5.19.0.gz.txt",
-  "-IMAGE-"
- ],
- "Embedded_src_Path": [
-  "C:\\Users\\reine\\OneDrive\\Desktop\\f1pygui\\f1Data\\package_1.7.0.0.tar.gz.txt",
-  "-EMBEDED_SRC-"
- ],
- "farmserverfillsrc": [
-  "C:\\Users\\reine\\OneDrive\\Desktop\\f1pygui\\f1Data\\F1-Installer-5.19.0_7.0.5.jar.txt",
-  "-FARMSERVER-"
- ],
- "farserverf1installersrc": [
-  "C:\\Users\\reine\\OneDrive\\Desktop\\f1pygui\\f1Data\\F1-Installer-5.19.0_7.0.5.jar.txt",
-  "-FARMSERVERF1INSTALLER-"
- ],
- "pathtodbfile": [
-  "C:\\Users\\reine\\OneDrive\\Desktop\\f1pygui\\f1Data\\F1-Installer-5.19.0_7.0.5.jar.txt",
-  "-DB_FILE-"
- ],
- "Data Import Checkbox": [
-  false,
-  "-IMPORTDBBOOL-"
- ],
- "nand_src_path": [
-  "C:\\Users\\reine\\OneDrive\\Desktop\\f1pygui\\f1Data\\scr-u-boot-1.0.0.0.bin.txt",
-  "-NAND_SRC_PATH-"
- ],
- "Db File Source": [
-  "C:\\Users\\reine\\OneDrive\\Desktop\\f1pygui\\f1Data\\F1-Installer-5.19.0_7.0.5.jar.txt",
-  "-DB_FILE_SRC-"
- ],
- "to_rts_port": [
-  "4444",
-  "-TO_RTS-"
- ],
- "from_rts_port": [
-  "2222",
-  "-FROM_RTS-"
- ],
- "F1_UNIT_PREP_FINAL_IP_CONFIGS": [
-  "Static",
-  "-DHCP-"
- ],
- "Import Database": [
-  "",
-  "-IMPORTDBBOOL-"
- ],
- "Serial Number": [
-  "34f3f1",
-  "-SN-"
- ],
- "som_desired_ip": [
-  "10.2.10.4",
-  "-SOM_DESIRED_IP-"
- ]
+ "Host_Ip": "10.3.10.4",
+ "Image Path": "C:/Users/reine/OneDrive/Desktop/f1pygui/f1Data/baseline_db_3.4.0.63644_new.sql.txt",
+ "Embedded_src_Path": "C:/Users/reine/OneDrive/Desktop/f1pygui/f1Data/baseline_db_3.4.0.63644_new.sql.txt",
+ "farmserverfillsrc": "C:/Users/reine/OneDrive/Desktop/f1pygui/f1Data/baseline_db_3.4.0.63644_new.sql.txt",
+ "farserverf1installersrc": "C:/Users/reine/OneDrive/Desktop/f1pygui/f1Data/baseline_db_3.4.0.63644_new.sql.txt",
+ "pathtodbfile": "C:/Users/reine/OneDrive/Desktop/f1pygui/f1Data/baseline_db_3.4.0.63644_new.sql.txt",
+ "Data Import Checkbox": false,
+ "nand_src_path": "C:/Users/reine/OneDrive/Desktop/f1pygui/f1Data/baseline_db_3.4.0.63644_new.sql.txt",
+ "Db File Source": "C:/Users/reine/OneDrive/Desktop/f1pygui/f1Data/baseline_db_3.4.0.63644_new.sql.txt",
+ "F1_UNIT_PREP_FINAL_IP_CONFIGS": "DHCP",
+ "Serial Number": "d2343",
+ "to_rts_port": "4312",
+ "from_rts_port": "1234",
+ "som_desired_ip": "10.3.10.4"
 }

@@ -45,9 +45,9 @@ def main():
                 interval = 100 / len(valid_inputs_List)
                 window['-LOG-']('')
                 window['-CONTINUE-'](visible=False)
+                window['-OPEN_LOG_FOLDER-'](visible=False)
                 window['-STOP_LOG-'](visible=True)
                 window['-LOADING-'](visible=True)
-                UpdateDefaultValues()
                 app_started, log_queue, queue_handler,threaded_app = startApp(app_started)
         elif event == "-NETWORK_SETTINGS-":
             continue
@@ -60,6 +60,7 @@ def main():
         if valid_inputs_bool:   
             if not app_started:
                 window['-CONTINUE-'](visible=True)
+                window['-OPEN_LOG_FOLDER-'](visible=True)
                 window['-STOP_LOG-'](visible=False)
                 window['-LOADING-'](visible=False)
             else:
