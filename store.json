@@ -10,7 +10,7 @@
  "Db File Source": "C:/Users/reine/OneDrive/Desktop/f1pygui/f1Data/baseline_db_3.4.0.63644_new.sql.txt",
  "F1_UNIT_PREP_FINAL_IP_CONFIGS": "DHCP",
  "Serial Number": "d2343",
- "to_rts_port": "4312",
+ "to_rts_port": "2333",
  "from_rts_port": "1234",
  "som_desired_ip": "10.3.10.4"
 }
