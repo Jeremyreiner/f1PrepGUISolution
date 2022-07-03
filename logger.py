@@ -1,9 +1,9 @@
+import time
 import queue
 import logging
 import threading
-import time
 import ctypes
-from guiExtensionFunctions import map_valid_input_values
+from guiExtensionFunctions import map_valid_input_values #used for logging in mockscript
 
 logger = logging.getLogger('f1_unit_prep')  # global logger
 
@@ -39,9 +39,9 @@ class ThreadedApp(threading.Thread):
             print('Exception raise failure')
 
     def stop(self):
+        logger.info("F1_unit_prep script was stopped by the user.")
         self._stop_event.set()
         self.run_script.join()
-        logger.error("F1_unit_prep script was stopped by the user.")
         return False
 
     def run(self):
@@ -72,9 +72,9 @@ def startApp(app_started) -> tuple:
     threaded_app = ThreadedApp(map_valid_input_values)
     if not app_started:
         threaded_app.run()
-        logger.debug(f'App started\n---------------------\n')
+        logger.info(f'App started\n---------------------\n')
         app_started = True
-        return app_started, log_queue, queue_handler,threaded_app
+        return app_started, threaded_app
     else:
-        return app_started, log_queue, queue_handler,threaded_app
+        return app_started, threaded_app
 

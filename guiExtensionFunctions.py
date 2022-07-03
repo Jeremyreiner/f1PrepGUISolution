@@ -3,7 +3,7 @@ import os.path
 import re
 
 invalid_inputs = set()
-map_valid_input_values = {} #[Key] is map_inputs value for a more readable name, [Value] input enterred from given gui field #used to calculate progress bar
+map_valid_input_values = {} #[Key] is map_inputs value for a more readable name, [Value] input enterred from given gui field #used in mockscript
 map_inputs = {
         '-IMAGE-': 'image_path',
         '-EMBEDED_SRC-': 'embedded_src_path',
@@ -130,27 +130,15 @@ def ValidateAllInputs(values: dict) -> tuple:
         elif value == "-SOM_DESIRED_IP-" or  value == "-HOST_IP_INPUT-":
             ValidateIpAddress(value, path)
         elif value == '-DHCP-':
-            v = values[value]
-            if v == 'Static':
-                map_valid_input_values[map_inputs[value]] = v
-            elif v == 'DHCP':
-                map_valid_input_values[map_inputs[value]] = v
-            else:
-                invalid_inputs.add(value)
+            map_valid_input_values[map_inputs[value]] = values[value]
         elif (value == "-IMAGE-" or value == "-EMBEDED_SRC-" or 
                 value == "-FARMSERVER-" or value == "-FARMSERVERF1INSTALLER-" or
                 value == "-DB_FILE-" or value == "-NAND_SRC_PATH-" or value == "-DB_FILE_SRC-"):
             
             CheckValidFilePath(path, value)
         elif value == "-IMPORTDBBOOL-":
-            db_bool = values[value]
-            if db_bool:
-                map_valid_input_values[map_inputs[value]] = db_bool
-            else:
-                map_valid_input_values[map_inputs[value]] = db_bool
+            map_valid_input_values[map_inputs[value]] = values[value]
     if len(invalid_inputs) == 0:
         isValid = True
-        interval = int(100/len(map_valid_input_values.keys()))
-        return isValid, interval
-    else:
-        return isValid, 0
+        return isValid
+    return isValid

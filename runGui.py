@@ -1,8 +1,3 @@
-import queue
-import logging
-import threading
-import ctypes
-from turtle import title
 from pysimpleguiLayout import *
 from DefaultValues import *
 from logger import *
@@ -31,7 +26,6 @@ def main():
     global progress
     window = Make_Win1()
     window.Maximize()
-    progress,interval = 0, 0
     valid_inputs_bool, app_started = False, False
     values = {}
     
@@ -47,7 +41,7 @@ def main():
         window['-LOADING-'].update_animation(popAnim, time_between_frames=10)
 
         if event == "-SAVE-":
-            valid_inputs_bool, interval = ValidateAllInputs(values)
+            valid_inputs_bool = ValidateAllInputs(values)
             FixHighlightedInputs(window)
             settings = ValidateSettings(invalid_inputs)
             if len(settings) > 0:
@@ -67,7 +61,7 @@ def main():
             os.system('ncpa.cpl')
 
         elif event == "-CONTINUE-":
-            valid_inputs_bool, interval = ValidateAllInputs(values)
+            valid_inputs_bool = ValidateAllInputs(values)
             FixHighlightedInputs(window)
             if not valid_inputs_bool:
                 HighlightIncorrectInputs(window)
@@ -79,7 +73,7 @@ def main():
                 window['-OPEN_LOG_FOLDER-'](visible=False)
                 window['-STOP_LOG-'](visible=True)
                 window['-LOADING-'](visible=True)
-                app_started, log_queue, queue_handler,ThreadedApp = startApp(app_started)
+                app_started, ThreadedApp = startApp(app_started)
                 for field in data:
                     if field in v_to_g:
                         gfield = v_to_g[field]
@@ -105,21 +99,28 @@ def main():
                 window['-STOP_LOG-'](visible=False)
                 window['-LOADING-'](visible=False)
             else:
-                try:
-                    record = log_queue.get(block=False)
-                    msg = queue_handler.format(record)
-                    window['-LOG-'](msg+'\n', append=True)
-                    progress += interval
-                    if msg != 'App started\n---------------------\n':
-                        window['-PROGRESSBAR-'](progress)
-                except queue.Empty:
-                    pass
-                if event == "-STOP_LOG-" or progress >= 99:
+                # PROGRESS BAR IS DISCONEECTED WITH SG.OUTPUT
+                if event == "-STOP_LOG-":
                     app_started = ThreadedApp.stop()
                     if not isinstance(ThreadedApp, int):
                         ThreadedApp.stop()
-                        progress = 0
-                    continue
+
+
+                # try:
+                #     record = log_queue.get(block=False)
+                #     msg = queue_handler.format(record)
+                #     window['-LOG-'](msg+'\n', append=True)
+                #     progress += interval
+                #     if msg != 'App started\n---------------------\n':
+                #         window['-PROGRESSBAR-'](progress)
+                # except queue.Empty:
+                #     pass
+                # if event == "-STOP_LOG-" or progress >= 99:
+                #     app_started = ThreadedApp.stop()
+                #     if not isinstance(ThreadedApp, int):
+                #         ThreadedApp.stop()
+                #         progress = 0
+                #     continue
     window.close()
 
 

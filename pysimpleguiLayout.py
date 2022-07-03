@@ -16,7 +16,7 @@ input_btn_height = 1
 inputPadding = ((3, 6))
 screen_hight_used = screen_height - ((clmnSize[1] // 2) + (clmnSize[1] - 100))
 textboxHeight = (screen_height - screen_hight_used) // 40
-print(screen_width)
+
 col1 = [
     [sg.Text('Serial Port')], [sg.Combo(selection,default_value=selection[0],size=(
         (inputWidth + buttonWidth), input_btn_height),readonly=True, key='-SERIAL_PORT-', pad=inputPadding)],
@@ -95,7 +95,7 @@ row3 = [
         # sg.Button('Stop', key='-STOP_LOG-',visible=False ,size=(buttonWidth, 1)),
         sg.Image(data=popAnim, enable_events=True, visible=False ,pad=((screen_width *.78,0), 0), key='-LOADING-', right_click_menu=['UNUSED', ['Exit']]),
     ],
-    [sg.Multiline(size=(round(screen_width), textboxHeight), key='-LOG-', autoscroll=True, disabled=True)],
+    [sg.Output(size=(round(screen_width), textboxHeight), key='-LOG-')],# sg.Multiline(size=(round(screen_width), textboxHeight), key='-LOG-', autoscroll=True, disabled=True)],
     [sg.ProgressBar(100, orientation='h', size=(round(screen_width), (round(screen_height / 20))), key='-PROGRESSBAR-')],
 ]
 # -------ROW DESIGN INSIDE OF window1----------------

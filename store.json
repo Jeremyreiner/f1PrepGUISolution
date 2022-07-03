@@ -1,8 +1,8 @@
 {
  "customer_ID": 712712712,
  "serial_number": "WD24SNSTFS019477",
- "TO_RTS_PORT": "2560",
- "FROM_RTS_PORT": "2561",
+ "TO_RTS_PORT": "3333",
+ "FROM_RTS_PORT": "4455",
  "image_path": "C:/Users/reine/OneDrive/Desktop/f1pygui/f1Data/Dump26062018_f1pack_2.2.1.38687_SOM.sql.txt",
  "embedded_src_path": "C:/Users/reine/OneDrive/Desktop/f1pygui/f1Data/Dump26062018_f1pack_2.2.1.38687_SOM.sql.txt",
  "nand_src_path": "C:/Users/reine/OneDrive/Desktop/f1pygui/f1Data/Dump26062018_f1pack_2.2.1.38687_SOM.sql.txt",
