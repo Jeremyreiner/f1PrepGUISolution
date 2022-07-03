@@ -1,18 +1,16 @@
 import json
-from guiExtensionFunctions import mapValidInputValues#, JsonToGuiKeys
-
-all_data = {}
-
-with open('store.json') as f:
-    data = json.load(f)
-
-    all_data = data
 
 def load_data() -> dict:
-    data = {}
+    data1 = {}
     with open('store.json') as file:
         data = json.load(file)
-    return dict(data)
+        # for field, value in data.items():
+        #     if not (field == "Serial Number" or field == "to_rts_port" or
+        #             field == "from_rts_port" or field == "F1_UNIT_PREP_FINAL_IP_CONFIGS"
+        #             or field == "som_desired_ip"):
+        #         data1[field] = value
+    # return data1
+    return data 
 
 
 def dump_data(data) -> bool:

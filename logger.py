@@ -2,41 +2,10 @@ import queue
 import logging
 import threading
 import time
-from pysimpleguiLayout import *
-from guiExtensionFunctions import mapValidInputValues
+import ctypes
+from guiExtensionFunctions import map_valid_input_values
 
-logger = logging.getLogger('mymain')
-
-class ThreadedApp():
-    def __init__(self, mapValidInputValues):
-        super().__init__()
-        '''
-        Threaded app has two responsibilities
-        1: read the script and add each item to the queue
-        2: Terminate created threads, join each thread into the main thread, and reset the progress bar position
-        '''
-        self.stop_event = threading.Event()
-        self.params = mapValidInputValues
-        self.run_script = ""
-
-    def run(self):
-        '''
-        Run script simply reads through the mock script and adds each item into the queue,
-        This thread listens for the stop event flag, if active, will break out of the loop.
-        '''
-        self.run_script = threading.Thread(target=mock_script, args=([self.stop_event], self.params),name="scriptThread")
-        self.run_script.start()
-
-
-    def stop(self):
-        '''
-        Sets a flag event for the run method, flagging the thread will allow access to break out of loop.
-        Then procedes to join the thread back into main thread.
-        '''
-        self.stop_event.set()
-        self.run_script.join()
-        return False
-
+logger = logging.getLogger('f1_unit_prep')  # global logger
 
 class QueueHandler(logging.Handler):
     def __init__(self, log_queue):
@@ -45,6 +14,40 @@ class QueueHandler(logging.Handler):
 
     def emit(self, record):
         self.log_queue.put(record)
+
+class ThreadedApp(threading.Thread):
+    def __init__(self, map_valid_input_values):
+        super().__init__()
+        self._stop_event = threading.Event()
+        self.params = map_valid_input_values
+
+    def get_id(self):
+
+        # returns id of the respective thread
+        if hasattr(self, '_thread_id'):
+            return self._thread_id
+        for id, thread in threading._active.items():
+            if thread is self:
+                return id
+
+    def raise_exception(self):
+        thread_id = self.get_id()
+        res = ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id,
+              ctypes.py_object(SystemExit))
+        if res > 1:
+            ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id, 0)
+            print('Exception raise failure')
+
+    def stop(self):
+        self._stop_event.set()
+        self.run_script.join()
+        logger.error("F1_unit_prep script was stopped by the user.")
+        return False
+
+    def run(self):
+        self.run_script = threading.Thread(target=mock_script, args=([self._stop_event], self.params),name="scriptThread")
+        self.run_script.start()
+
 
 # Will be replaced by the F1_test run function.
 def mock_script(*args):
@@ -57,21 +60,16 @@ def mock_script(*args):
             break
 
 
-def InitializeThreadedApp():
-    logging.basicConfig(level=logging.DEBUG)
-    log_queue = queue.Queue()
-    queue_handler = QueueHandler(log_queue)
-    logger.addHandler(queue_handler)
-    threaded_app = ThreadedApp(mapValidInputValues)
-    return threaded_app, log_queue, queue_handler
-
-
 def startApp(app_started) -> tuple:
     '''
     Configures connections for logger and queue, and initializes the threading app class.
     This returns a boolean statement needed in mainthread loop if Threading App has started.
     '''
-    threaded_app, log_queue, queue_handler =InitializeThreadedApp()
+    logging.basicConfig(level=logging.DEBUG)
+    log_queue = queue.Queue()
+    queue_handler = QueueHandler(log_queue)
+    logger.addHandler(queue_handler)
+    threaded_app = ThreadedApp(map_valid_input_values)
     if not app_started:
         threaded_app.run()
         logger.debug(f'App started\n---------------------\n')

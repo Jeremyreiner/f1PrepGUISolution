@@ -1,24 +1,25 @@
 import ipaddress
 import os.path
+import re
 
 invalid_inputs = set()
-map_valid_input_values = {} #[Key] is map_inputs value for a more readable name, [Value] input enterred from given gui field
+map_valid_input_values = {} #[Key] is map_inputs value for a more readable name, [Value] input enterred from given gui field #used to calculate progress bar
 map_inputs = {
-        '-IMAGE-': 'Image Path',
-        '-EMBEDED_SRC-': 'Embedded_src_Path',
-        '-FARMSERVER-': 'farmserverfillsrc',
-        '-FARMSERVERF1INSTALLER-': 'farserverf1installersrc',
-        '-DB_FILE-': 'pathtodbfile',
-        "-IMPORTDBBOOL-": "Data Import Checkbox",
-        "-DB_FILE_SRC-": "Db File Source",
+        '-IMAGE-': 'image_path',
+        '-EMBEDED_SRC-': 'embedded_src_path',
+        '-FARMSERVER-': 'farmserverfilesrc',
+        '-FARMSERVERF1INSTALLER-': 'farmserverf1installersrc',
+        '-DB_FILE-': 'PathToDBfile',
+        "-IMPORTDBBOOL-": "importdatabase",
+        "-DB_FILE_SRC-": "dbfilesrc",
         '-NAND_SRC_PATH-': 'nand_src_path',
         '-SERIAL_PORT-': 'Serial Port',
-        '-HOST_IP_INPUT-': 'Host_Ip',
-        '-SN-': 'Serial Number',
-        '-TO_RTS-': 'to_rts_port',
-        '-FROM_RTS-': 'from_rts_port',
+        '-HOST_IP_INPUT-': 'host_ip',
+        '-SN-': 'serial_number',
+        '-TO_RTS-': 'TO_RTS_PORT',
+        '-FROM_RTS-': 'FROM_RTS_PORT',
         '-SOM_DESIRED_IP-': 'som_desired_ip',
-        '-DHCP-': 'F1_UNIT_PREP_FINAL_IP_CONFIGS',
+        '-DHCP-': 'f1_unit_prep_final_ip_config',
     }
 
 v_to_g = {}
@@ -74,10 +75,14 @@ def CheckValidFilePath(path: str, value: str):
 def ValidateInput(value:str, path:str):
     global invalid_inputs
     global map_valid_input_values
-    if path == "" or len(path) <= 0:
-        invalid_inputs.add(value)
-    else:
+    letters = bool(re.match(r'\w*[A-Z]\w', path))
+    numbers = bool(re.match(r'\w*[1-9]\w', path))
+    symbols = any(not x.isalnum() for x in path)
+
+    if letters and numbers and not symbols:
         map_valid_input_values[map_inputs[value]] = path
+    else:
+        invalid_inputs.add(value)
 
 
 def ValidatePortLength(value:str, path:str):
