@@ -3,9 +3,13 @@ import queue
 import logging
 import threading
 import ctypes
-from guiExtensionFunctions import map_valid_input_values #used for logging in mockscript
+from DefaultValues import *
 
 logger = logging.getLogger('f1_unit_prep')  # global logger
+data = load_data()
+data = load_data_by_id(data[0])
+progress = 0
+interval = round(100 / len(data))
 
 class QueueHandler(logging.Handler):
     def __init__(self, log_queue):
@@ -16,10 +20,10 @@ class QueueHandler(logging.Handler):
         self.log_queue.put(record)
 
 class ThreadedApp(threading.Thread):
-    def __init__(self, map_valid_input_values):
+    def __init__(self, params):
         super().__init__()
         self._stop_event = threading.Event()
-        self.params = map_valid_input_values
+        self.params = params
 
     def get_id(self):
 
@@ -39,7 +43,9 @@ class ThreadedApp(threading.Thread):
             print('Exception raise failure')
 
     def stop(self):
+        global progress
         logger.info("F1_unit_prep script was stopped by the user.")
+        progress=0
         self._stop_event.set()
         self.run_script.join()
         return False
@@ -48,17 +54,19 @@ class ThreadedApp(threading.Thread):
         self.run_script = threading.Thread(target=mock_script, args=([self._stop_event], self.params),name="scriptThread")
         self.run_script.start()
 
-
+def RetrieveProgress():
+    return progress
 # Will be replaced by the F1_test run function.
 def mock_script(*args):
+    global progress, interval
     stop_event, inputs = args
     for key in inputs:
         txt = f'[{key}] {inputs[key]}\n'
         logger.info(txt)
+        progress += interval    
         time.sleep(1)
         if stop_event[0].is_set():
             break
-
 
 def startApp(app_started) -> tuple:
     '''
@@ -69,7 +77,7 @@ def startApp(app_started) -> tuple:
     log_queue = queue.Queue()
     queue_handler = QueueHandler(log_queue)
     logger.addHandler(queue_handler)
-    threaded_app = ThreadedApp(map_valid_input_values)
+    threaded_app = ThreadedApp(data)
     if not app_started:
         threaded_app.run()
         logger.info(f'App started\n---------------------\n')
@@ -77,4 +85,3 @@ def startApp(app_started) -> tuple:
         return app_started, threaded_app
     else:
         return app_started, threaded_app
-
