@@ -4,10 +4,9 @@ import logging
 import threading
 import ctypes
 from DefaultValues import *
-
+from guiValidationFunctions import ValidateAllInputs, v_to_g, map_inputs
 logger = logging.getLogger('f1_unit_prep')  # global logger
 data = load_data()
-data = load_data_by_id(data[0])
 progress = 0
 interval = round(100 / len(data))
 
@@ -44,7 +43,7 @@ class ThreadedApp(threading.Thread):
 
     def stop(self):
         global progress
-        logger.info("F1_unit_prep script was stopped by the user.")
+        logger.info("F1_unit_prep script has stopped.")
         progress=0
         self._stop_event.set()
         self.run_script.join()
@@ -62,7 +61,14 @@ def mock_script(*args):
     stop_event, inputs = args
     for key in inputs:
         txt = f'[{key}] {inputs[key]}\n'
-        logger.info(txt)
+        #Change logging information according to input validity
+        if key in v_to_g:
+            error_bool = ValidateAllInputs({v_to_g[key]: inputs[key]})
+            if error_bool:
+                logger.info(txt)
+            else:
+                logger.error(f"Invalid Entry at [{txt}]: ")
+                
         progress += interval    
         time.sleep(1)
         if stop_event[0].is_set():

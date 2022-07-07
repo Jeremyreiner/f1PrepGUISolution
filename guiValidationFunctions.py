@@ -94,7 +94,7 @@ def ValidateAllInputs(values: dict) -> bool:
     for key in values:
         value=values[key]
         if key == "-SN-":
-            if not set(value).difference(ascii_letters.upper() + digits):
+            if not set(value).difference(ascii_letters.upper() + digits) and not value =='':
                 map_valid_input_values[map_inputs[key]] = values[key]
             else:
                 invalid_inputs.add(key)
