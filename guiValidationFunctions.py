@@ -1,6 +1,5 @@
 import ipaddress
 import os.path as op
-import re
 from string import ascii_letters, digits
 
 invalid_inputs = set()
@@ -100,7 +99,12 @@ def ValidateAllInputs(values: dict) -> bool:
                 invalid_inputs.add(key)
 
         elif key == "-TO_RTS-" or key == '-FROM_RTS-':
-            if value=="" or int(value) < 1000 or int(value) > 6553:
+            try:
+                port_num = int(value)
+                if (set(value).difference(digits)
+                    or port_num  < 1000 or port_num  > 6553):
+                    invalid_inputs.add(key)
+            except:
                 invalid_inputs.add(key)
             else:
                 map_valid_input_values[map_inputs[key]] = values[key]

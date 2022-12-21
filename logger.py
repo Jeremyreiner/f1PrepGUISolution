@@ -4,11 +4,13 @@ import logging
 import threading
 import ctypes
 from DefaultValues import *
-from guiValidationFunctions import ValidateAllInputs, v_to_g, map_inputs
+from guiValidationFunctions import ValidateAllInputs, v_to_g, invalid_inputs
+
 logger = logging.getLogger('f1_unit_prep')  # global logger
 data = load_data()
 progress = 0
 interval = round(100 / len(data))
+
 
 class QueueHandler(logging.Handler):
     def __init__(self, log_queue):
@@ -67,12 +69,13 @@ def mock_script(*args):
             if error_bool:
                 logger.info(txt)
             else:
-                logger.error(f"Invalid Entry at [{txt}]: ")
-                
+                logger.error(f"Invalid Entry at {txt}")
+        else:
+            logger.info(txt)
         progress += interval    
-        time.sleep(1)
         if stop_event[0].is_set():
             break
+        time.sleep(1)
 
 def startApp(app_started) -> tuple:
     '''

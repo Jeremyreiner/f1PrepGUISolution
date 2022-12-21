@@ -1,9 +1,11 @@
 import os
-import this
+import ctypes
+import psgtray
+from psgtray import SystemTray 
 from pysimpleguiLayout import *
 from DefaultValues import *
 from logger import *
-from guiValidationFunctions import invalid_inputs,v_to_g, ValidateAllInputs, invalid_inputs, SettingsRow
+from guiValidationFunctions import *
 from plyer import notification
 
 highlighted_inputs = set()
@@ -28,11 +30,20 @@ def ThrowNotification(m="", t=""):
         title= t,
         message= m,
         app_name="Hello world",
-        #https://convertio.co/ converts files to .ico
+        #https://convertio.co/ converts files to .ico extension
         app_icon = r'C:\Users\reine\Downloads\default.ico',
         timeout= 10,)
 
-    
+def DisableValues(window,values):
+    for value in values:
+        if not value == '-CONTINUE-':
+            window[value](disabled=True)
+
+
+def EnableValues(window,values):
+    for value in values:
+        if not value == '-CONTINUE-':
+            window[value](disabled=False)
 
 
 def main():
@@ -48,7 +59,6 @@ def main():
             gfield = v_to_g[field]
             if gfield in window.AllKeysDict:
                 window[gfield](data[field])
-
     while True:
         event, values = window.read(timeout=100)
         window['-LOADING-'].update_animation(popAnim, time_between_frames=10)
@@ -77,9 +87,6 @@ def main():
         elif event == "-CONTINUE-":
             valid_inputs_bool = ValidateAllInputs(values)
 
-            #With script validation, run the script add to log and only if invalid enrty in script, break the log and throw error on log screen
-            #gui elements will be validated first, but f1 script validated inside of logger method.So if log finds an error, print in red, stop script, and throw notification
-
             if len(highlighted_inputs) > 0:
                 FixHighlightedInputs(window)
             if not valid_inputs_bool:
@@ -91,8 +98,8 @@ def main():
                 window['-CONTINUE-'](visible=False)
                 window['-STOP_LOG-'](visible=True)
                 window['-LOADING-'](visible=True)
-                window["-SAVE-"](disabled=True)
-                window['-NETWORK_SETTINGS-'](disabled=True)
+                DisableValues(window,values)
+
                 for field in data:
                     if field in v_to_g:
                         gfield = v_to_g[field]
@@ -114,24 +121,23 @@ def main():
                 window['-CONTINUE-'](visible=True)
                 window['-STOP_LOG-'](visible=False)
                 window['-LOADING-'](visible=False)
-                window["-SAVE-"](disabled=False)
-                window['-NETWORK_SETTINGS-'](disabled=False)
             else:
                 progress =RetrieveProgress()
                 window["-PROGRESSBAR-"](progress)
                 if event == "-STOP_LOG-":
+                    EnableValues(window,values)
                     if not isinstance(ThreadedApp, int):
                         app_started = ThreadedApp.stop()
                         title= "Script Event Been Stopped By User"
                         message= "Open F1 App To See The Occurence"
                         ThrowNotification(message, title)
                 elif progress >= 100:
+                    EnableValues(window,values)
                     if not isinstance(ThreadedApp, int):
                         app_started = ThreadedApp.stop()
                         title= "F1 Script Completed"
                         message= "Open F1 App For Next Steps"
                         ThrowNotification(message, title)
-
     window.close()
 
 
